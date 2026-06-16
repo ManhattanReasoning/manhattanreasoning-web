@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Manhattan Reasoning — Cloud FPGA infrastructure for hardware-reasoning agents</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%230b0d12'/%3E%3Cpath%20d='M11%208V24M11%2016H22'%20stroke='%23fff'%20stroke-width='2.4'%20stroke-linecap='round'/%3E%3C/svg%3E" />
+<meta name="description" content="Open-source FPGA toolchains in the cloud. Fast, verifiable reward loops for reinforcement learning on hardware reasoning. Home of the NP-Complete Suite." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --blue: #0a84ff;
+    --blue-dim: #0a84ff22;
+    --blue-deep: #006fe6;
+    --ink: #0a0a0b;
+    --paper: #ffffff;
+    --muted: #5b616e;
+    --line: #e7e9ee;
+    --soft: #f5f6f8;
+    --radius: 16px;
+    --maxw: 1140px;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+  a { color: inherit; text-decoration: none; }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- NAV ---------- */
+  header.nav {
+    position: sticky; top: 0; z-index: 50;
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 68px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -0.02em; font-size: 18px; }
+  .brand .mark {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: var(--ink); color: #fff;
+    display: grid; place-items: center; font-weight: 900; font-size: 16px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .brand .mark span { color: var(--blue); }
+  .brand-logo { height: 38px; width: auto; display: block; }
+  .foot-logo { height: 44px; }
+  @media (max-width: 560px){ .brand-logo { height: 30px; } }
+  .nav-links { display: flex; gap: 28px; align-items: center; font-size: 14.5px; font-weight: 500; color: #2a2d35; }
+  .nav-links a:hover { color: var(--blue); }
+  .nav-cta {
+    background: var(--ink); color: #fff; padding: 9px 16px; border-radius: 10px;
+    font-weight: 600; font-size: 14px; transition: transform .15s ease, background .15s ease;
+  }
+  .nav-cta:hover { background: var(--blue); transform: translateY(-1px); }
+  @media (max-width: 820px){ .nav-links a:not(.nav-cta){ display:none; } }
+
+  /* ---------- HERO ---------- */
+  .hero { position: relative; overflow: hidden; padding: 92px 0 60px; }
+  .hero::before {
+    content:""; position:absolute; inset:0;
+    background:
+      radial-gradient(60% 50% at 78% 8%, rgba(10,132,255,0.10), transparent 70%),
+      linear-gradient(180deg, #fbfcff 0%, #ffffff 60%);
+    z-index:-1;
+  }
+  .grid-bg {
+    position:absolute; inset:0; z-index:-1; opacity:.5;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 46px 46px;
+    mask-image: radial-gradient(70% 60% at 50% 0%, #000 30%, transparent 80%);
+  }
+  .eyebrow {
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:13px; font-weight:600; color:var(--blue-deep);
+    background: var(--blue-dim); border:1px solid #cfe4ff;
+    padding:6px 12px; border-radius:999px; margin-bottom:22px;
+  }
+  .eyebrow .dot { width:7px; height:7px; border-radius:50%; background:var(--blue); box-shadow:0 0 0 4px rgba(10,132,255,.18); }
+  h1.head {
+    font-size: clamp(38px, 6vw, 68px); line-height:1.02; letter-spacing:-0.035em;
+    font-weight:800; margin:0 0 22px; max-width: 16ch;
+  }
+  h1.head em { font-style: normal; color: var(--blue); }
+  .lede { font-size: clamp(17px, 2.1vw, 21px); color:#3a3e48; max-width: 60ch; margin:0 0 32px; }
+  .hero-cta { display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
+  .btn {
+    display:inline-flex; align-items:center; gap:9px; font-weight:600; font-size:15.5px;
+    padding:13px 22px; border-radius:12px; transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn-primary { background:var(--blue); color:#fff; box-shadow:0 8px 22px rgba(10,132,255,.28); }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 12px 30px rgba(10,132,255,.36); }
+  .btn-ghost { border:1px solid var(--line); color:var(--ink); background:#fff; }
+  .btn-ghost:hover { border-color:var(--blue); color:var(--blue); }
+  .hero-meta { margin-top:38px; display:flex; gap:34px; flex-wrap:wrap; color:var(--muted); font-size:13.5px; }
+  .hero-meta b { color:var(--ink); font-weight:700; }
+
+  /* ---------- LOGOS / TRUST ---------- */
+  .trust { border-top:1px solid var(--line); border-bottom:1px solid var(--line); background:var(--soft); }
+  .trust .wrap { display:flex; align-items:center; gap:40px; padding:20px 24px; flex-wrap:wrap; justify-content:center; }
+  .trust span { font-size:12.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); font-weight:600; }
+  .trust .chip { font-family:'JetBrains Mono',monospace; font-weight:500; color:#3a3e48; font-size:14px; opacity:.85; }
+
+  /* ---------- SECTION SCAFFOLD ---------- */
+  section { padding: 84px 0; }
+  .sec-tag { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--blue); font-weight:500; letter-spacing:.02em; margin-bottom:14px; }
+  h2.sec { font-size: clamp(28px, 4vw, 44px); letter-spacing:-0.03em; font-weight:800; margin:0 0 16px; line-height:1.05; }
+  .sec-sub { font-size:18px; color:var(--muted); max-width:62ch; margin:0; }
+
+  /* ---------- WHY / COMPARISON ---------- */
+  .compare { display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:48px; }
+  @media (max-width:780px){ .compare { grid-template-columns:1fr; } }
+  .card {
+    border:1px solid var(--line); border-radius:var(--radius); padding:30px;
+    background:#fff;
+  }
+  .card.them { background:var(--soft); }
+  .card .ctitle { font-weight:700; font-size:15px; letter-spacing:.02em; margin-bottom:6px; display:flex; align-items:center; gap:9px; }
+  .card.them .ctitle { color:var(--muted); }
+  .card.us .ctitle { color:var(--blue-deep); }
+  .badge { font-size:11px; font-family:'JetBrains Mono',monospace; padding:3px 8px; border-radius:6px; font-weight:600; }
+  .badge.slow { background:#f1d6d6; color:#a23b3b; }
+  .badge.fast { background:var(--blue-dim); color:var(--blue-deep); }
+  .bigstat { font-size:46px; font-weight:800; letter-spacing:-0.03em; margin:10px 0 4px; }
+  .card.them .bigstat { color:#7a3030; }
+  .card.us .bigstat { color:var(--blue); }
+  .bigstat small { font-size:18px; font-weight:600; color:var(--muted); }
+  .ulist { list-style:none; padding:0; margin:20px 0 0; }
+  .ulist li { display:flex; gap:11px; padding:8px 0; font-size:15px; color:#33363f; border-top:1px solid var(--line); }
+  .ulist li:first-child { border-top:none; }
+  .ic { flex:0 0 18px; color:var(--blue); font-weight:700; }
+  .card.them .ic { color:#bba; }
+
+  /* ---------- FEATURE GRID ---------- */
+  .feat { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; margin-top:48px; }
+  @media (max-width:860px){ .feat { grid-template-columns:1fr; } }
+  .feat .card { transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+  .feat .card:hover { transform:translateY(-3px); box-shadow:0 16px 40px rgba(10,20,40,.07); border-color:#d4e6ff; }
+  .feat .fic { width:42px; height:42px; border-radius:11px; background:var(--blue-dim); color:var(--blue-deep);
+    display:grid; place-items:center; margin-bottom:18px; font-size:20px; }
+  .feat h3 { font-size:18px; margin:0 0 8px; letter-spacing:-0.01em; }
+  .feat p { font-size:14.5px; color:var(--muted); margin:0; }
+
+  /* ---------- NP-COMPLETE SUITE ---------- */
+  .suite { background:var(--ink); color:#fff; }
+  .suite .sec-tag { color:#5fb0ff; }
+  .suite h2.sec { color:#fff; }
+  .suite .sec-sub { color:#9aa1ad; }
+  .suite-head { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; flex-wrap:wrap; }
+  .suite-stats { display:flex; gap:30px; margin-top:10px; }
+  .suite-stats div b { display:block; font-size:30px; font-weight:800; letter-spacing:-0.02em; color:var(--blue); }
+  .suite-stats div span { font-size:13px; color:#8b929e; }
+
+  .scroller-hint { margin:34px 0 14px; font-size:13px; color:#7e8593; display:flex; align-items:center; gap:8px; }
+  .scroller-hint .arrow { animation:nudge 1.6s ease-in-out infinite; }
+  @keyframes nudge { 0%,100%{ transform:translateX(0);} 50%{ transform:translateX(5px);} }
+
+  .scroller {
+    display:flex; gap:20px; overflow-x:auto; padding:6px 4px 26px; scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+  }
+  .scroller::-webkit-scrollbar { height:8px; }
+  .scroller::-webkit-scrollbar-track { background:#1d1f24; border-radius:99px; }
+  .scroller::-webkit-scrollbar-thumb { background:#3a3e48; border-radius:99px; }
+  .scroller::-webkit-scrollbar-thumb:hover { background:var(--blue); }
+  .bench {
+    scroll-snap-align:start; flex:0 0 360px; max-width:360px;
+    background:#16181d; border:1px solid #262a31; border-radius:var(--radius);
+    overflow:hidden; display:flex; flex-direction:column;
+    transition:border-color .18s ease, transform .18s ease;
+  }
+  .bench:hover { border-color:var(--blue); transform:translateY(-3px); }
+  .bench-top { padding:22px 22px 0; }
+  .bench-cat { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .bench-cat .tag { font-family:'JetBrains Mono',monospace; font-size:11px; color:#5fb0ff; background:#0c2741; padding:4px 9px; border-radius:6px; font-weight:600; }
+  .bench-cat .hard { font-family:'JetBrains Mono',monospace; font-size:11px; color:#9aa1ad; }
+  .bench h3 { font-size:20px; margin:0 0 4px; letter-spacing:-0.01em; }
+  .bench .npc { font-family:'JetBrains Mono',monospace; font-size:12px; color:#6b7280; margin-bottom:14px; }
+  .bench p { font-size:13.5px; color:#9aa1ad; margin:0 0 16px; line-height:1.55; }
+  .code {
+    font-family:'JetBrains Mono',monospace; font-size:11.5px; line-height:1.65;
+    background:#0c0d10; border-top:1px solid #262a31; padding:16px 18px;
+    color:#c4c9d2; white-space:pre; overflow-x:auto; margin-top:auto;
+  }
+  .code .kw { color:#5fb0ff; }
+  .code .cm { color:#5b6472; }
+  .code .st { color:#7ee0a8; }
+  .code .fn { color:#e0c97e; }
+  .bench-foot { display:flex; gap:16px; padding:14px 18px; border-top:1px solid #262a31; font-size:11.5px; color:#7e8593; font-family:'JetBrains Mono',monospace; }
+  .bench-foot b { color:#cdd2da; }
+
+  /* ---------- RLVR LOOP ---------- */
+  .loop-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:48px; }
+  @media (max-width:900px){ .loop-grid { grid-template-columns:1fr 1fr; } }
+  .step { border:1px solid var(--line); border-radius:var(--radius); padding:24px; position:relative; background:#fff; }
+  .step .num { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--blue); font-weight:700; }
+  .step h4 { margin:10px 0 7px; font-size:16.5px; letter-spacing:-0.01em; }
+  .step p { margin:0; font-size:13.5px; color:var(--muted); }
+  .step .conn { position:absolute; right:-12px; top:50%; transform:translateY(-50%); color:var(--blue); font-weight:700; z-index:2; }
+  @media (max-width:900px){ .step .conn { display:none; } }
+
+  /* ---------- CODE / API ---------- */
+  .api { background:var(--soft); }
+  .api-grid { display:grid; grid-template-columns:1fr 1.1fr; gap:48px; align-items:center; }
+  @media (max-width:860px){ .api-grid { grid-template-columns:1fr; } }
+  .terminal { background:var(--ink); border-radius:14px; overflow:hidden; box-shadow:0 24px 60px rgba(10,20,40,.18); }
+  .term-bar { display:flex; align-items:center; gap:7px; padding:13px 16px; background:#16181d; border-bottom:1px solid #262a31; }
+  .term-bar i { width:11px; height:11px; border-radius:50%; display:inline-block; }
+  .term-bar .r{background:#ff5f57;} .term-bar .y{background:#febc2e;} .term-bar .g{background:#28c840;}
+  .term-bar .t { margin-left:10px; font-family:'JetBrains Mono',monospace; font-size:12px; color:#7e8593; }
+  .term-body { padding:22px; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.85; color:#c4c9d2; white-space:pre; overflow-x:auto; }
+  .term-body .cmd { color:#fff; }
+  .term-body .pr { color:var(--blue); }
+  .term-body .ok { color:#7ee0a8; }
+  .term-body .dim { color:#5b6472; }
+  .term-body .hl { color:#e0c97e; }
+
+  /* ---------- CTA ---------- */
+  .cta { text-align:center; }
+  .cta-box {
+    background: linear-gradient(135deg, #0a84ff 0%, #0052cc 100%);
+    border-radius:24px; padding:64px 32px; color:#fff; position:relative; overflow:hidden;
+  }
+  .cta-box::before { content:""; position:absolute; inset:0;
+    background-image:linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px);
+    background-size:40px 40px; mask-image:radial-gradient(60% 80% at 50% 0%, #000, transparent 75%); }
+  .cta-box h2 { font-size:clamp(28px,4.5vw,46px); letter-spacing:-0.03em; margin:0 0 14px; position:relative; }
+  .cta-box p { font-size:18px; opacity:.9; margin:0 auto 30px; max-width:48ch; position:relative; }
+  .cta-box .btn-primary { background:#fff; color:var(--blue-deep); box-shadow:0 10px 30px rgba(0,0,0,.18); position:relative; }
+  .cta-box .btn-primary:hover { background:#f0f6ff; }
+
+  /* ---------- FOOTER ---------- */
+  footer { border-top:1px solid var(--line); padding:48px 0 60px; }
+  .foot-grid { display:flex; justify-content:space-between; gap:30px; flex-wrap:wrap; }
+  .foot-brand { max-width:280px; }
+  .foot-brand p { color:var(--muted); font-size:14px; margin:14px 0 0; }
+  .foot-cols { display:flex; gap:64px; flex-wrap:wrap; }
+  .foot-col h5 { font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:0 0 14px; }
+  .foot-col a { display:block; font-size:14.5px; color:#33363f; margin-bottom:10px; }
+  .foot-col a:hover { color:var(--blue); }
+  .foot-bottom { margin-top:40px; padding-top:24px; border-top:1px solid var(--line); display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; color:var(--muted); font-size:13px; }</style>
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a href="#" class="brand">
+      <img src="assets/logo.png" alt="Manhattan Reasoning" class="brand-logo" />
+    </a>
+    <nav class="nav-links">
+      <a href="#platform">Platform</a>
+      <a href="#suite">NP-Complete Suite</a>
+      <a href="#loop">How it works</a>
+      <a href="#api">Docs</a>
+      <a href="#cta" class="nav-cta">Request access</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="grid-bg"></div>
+  <div class="wrap">
+    <span class="eyebrow"><span class="dot"></span> Cloud FPGA infrastructure for hardware-reasoning agents</span>
+    <h1 class="head">Reward loops at the speed of <em>open silicon</em>.</h1>
+    <p class="lede">
+      Manhattan Reasoning runs the open-source <b>Yosys</b> toolchain on managed cloud FPGAs —
+      synthesis, place-and-route, and on-device verification in seconds, not hours.
+      Built for agents learning hardware design through reinforcement learning with verifiable rewards.
+    </p>
+    <div class="hero-cta">
+      <a href="#cta" class="btn btn-primary">Request access →</a>
+      <a href="#suite" class="btn btn-ghost">Explore the NP-Complete Suite</a>
+    </div>
+    <div class="hero-meta">
+      <div><b>100%</b> open toolchain · Yosys · nextpnr</div>
+      <div><b>Seconds</b> not minutes per build loop</div>
+      <div><b>8</b> NP-complete benchmark families</div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST -->
+<div class="trust">
+  <div class="wrap">
+    <span>Built on the open hardware stack</span>
+    <span class="chip">Yosys</span>
+    <span class="chip">nextpnr</span>
+    <span class="chip">Verilator</span>
+    <span class="chip">Icarus</span>
+    <span class="chip">cocotb</span>
+    <span class="chip">SymbiYosys</span>
+  </div>
+</div>
+
+<!-- PLATFORM / WHY -->
+<section id="platform">
+  <div class="wrap">
+    <div class="sec-tag">// the bottleneck</div>
+    <h2 class="sec">RL agents starve on industry-grade wait times.</h2>
+    <p class="sec-sub">
+      Reinforcement learning needs dense, fast feedback. A vendor cloud FPGA flow can take
+      tens of minutes per build — fine for shipping a datacenter accelerator, fatal for an agent
+      that needs thousands of reward signals an hour. We rebuilt the loop around lightweight open tooling.
+    </p>
+
+    <div class="compare">
+      <div class="card them">
+        <div class="ctitle">Vendor cloud FPGA <span class="badge slow">e.g. AWS F2 / Vivado</span></div>
+        <div class="bigstat">Minutes<small> per build</small></div>
+        <ul class="ulist">
+          <li><span class="ic">×</span> Proprietary, closed synthesis &amp; PnR</li>
+          <li><span class="ic">×</span> Long, opaque place-and-route times</li>
+          <li><span class="ic">×</span> Per-instance licensing &amp; cold starts</li>
+          <li><span class="ic">×</span> Reward latency kills sample efficiency</li>
+        </ul>
+      </div>
+      <div class="card us">
+        <div class="ctitle">Manhattan Reasoning <span class="badge fast">Yosys + nextpnr</span></div>
+        <div class="bigstat">Seconds<small> per build</small></div>
+        <ul class="ulist">
+          <li><span class="ic">✓</span> Fully open, inspectable toolchain</li>
+          <li><span class="ic">✓</span> Lightweight synth tuned for fast iteration</li>
+          <li><span class="ic">✓</span> Warm pools — no cold start per rollout</li>
+          <li><span class="ic">✓</span> Dense rewards → real sample efficiency</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="feat">
+      <div class="card">
+        <div class="fic">⚡</div>
+        <h3>Fast build-and-reward loops</h3>
+        <p>Synthesis, place-and-route, and bitstream generation on managed FPGAs, returned as structured reward signals over a single API call.</p>
+      </div>
+      <div class="card">
+        <div class="fic">🔍</div>
+        <h3>Verifiable rewards</h3>
+        <p>Every submission is checked against a formal spec and on-device behavior — correctness, timing closure (Fmax), and resource usage (LUTs, FFs, DSPs).</p>
+      </div>
+      <div class="card">
+        <div class="fic">🧩</div>
+        <h3>Open &amp; reproducible</h3>
+        <p>No black-box vendor flow. The same Yosys/nextpnr pipeline runs locally and in the cloud, so rollouts are deterministic and auditable.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NP-COMPLETE SUITE -->
+<section id="suite" class="suite">
+  <div class="wrap">
+    <div class="suite-head">
+      <div>
+        <div class="sec-tag">// the benchmark</div>
+        <h2 class="sec">The NP-Complete Suite</h2>
+        <p class="sec-sub">
+          A graded benchmark of classic NP-complete problems, reframed as hardware-design tasks.
+          Agents must reason from a formal specification to a synthesizable Verilog accelerator —
+          then earn verifiable rewards for correctness, speed, and area.
+        </p>
+      </div>
+      <div class="suite-stats">
+        <div><b>8</b><span>problem families</span></div>
+        <div><b>3</b><span>reward axes</span></div>
+        <div><b>RLVR</b><span>verifiable rewards</span></div>
+      </div>
+    </div>
+
+    <div class="scroller-hint">
+      <span class="arrow">→</span> Scroll to browse example benchmarks
+    </div>
+
+    <div class="scroller" id="scroller">
+
+      <!-- SAT -->
+      <article class="bench">
+        <div class="bench-top">
+          <div class="bench-cat"><span class="tag">logic</span><span class="hard">difficulty ▰▰▱▱▱</span></div>
+          <h3>Boolean Satisfiability</h3>
+          <div class="npc mono">3-SAT · Cook–Levin canonical</div>
+          <p>Build a circuit that decides satisfiability of a 3-CNF formula and emits a witness assignment if one exists.</p>
+        </div>
+        <div class="code"><span class="cm">// spec: solve(φ) → (sat, x[])</span>
+<span class="kw">module</span> <span class="fn">sat_solver</span> #(<span class="kw">parameter</span> N=20)(
+  <span class="kw">input</span>  clause clauses[M],
+  <span class="kw">output</span> <span class="kw">reg</span>        sat,
+  <span class="kw">output</span> <span class="kw">reg</span> [N-1:0] assign_x
+);</div>
+        <div class="bench-foot"><span>reward: <b>correct·Fmax·area</b></span><span>verifier: <b>formal</b></span></div>
+      </article>
+
+      <!-- TSP -->
+      <article class="bench">
+        <div class="bench-top">
+          <div class="bench-cat"><span class="tag">routing</span><span class="hard">difficulty ▰▰▰▰▱</span></div>
+          <h3>Traveling Salesman</h3>
+          <div class="npc mono">TSP (decision) · tour ≤ K</div>
+          <p>Given a weighted graph, produce hardware that finds a Hamiltonian tour of total cost ≤ K, or proves none exists.</p>
+        </div>
+        <div class="code"><span class="cm">// dist[i][j] in BRAM, n ≤ 14</span>
+<span class="kw">module</span> <span class="fn">tsp_decide</span> (
+  <span class="kw">input</span>  [15:0] dist [N][N],
+  <span class="kw">input</span>  [31:0] K,
+  <span class="kw">output</span> <span class="kw">reg</span>        feasible,
+  <span class="kw">output</span> [3:0]    tour [N]
+);</div>
+        <div class="bench-foot"><span>reward: <b>correct·cycles</b></span><span>verifier: <b>oracle</b></span></div>
+      </article>
+
+      <!-- GRAPH COLORING -->
+      <article class="bench">
+        <div class="bench-top">
+          <div class="bench-cat"><span class="tag">graph</span><span class="hard">difficulty ▰▰▰▱▱</span></div>
+          <h3>Graph K-Coloring</h3>
+          <div class="npc mono">CHROMATIC-NUMBER · k=3</div>
+          <p>Assign one of k colors to each vertex so no edge is monochromatic. Stream the adjacency matrix; emit a valid coloring.</p>
+        </div>
+        <div class="code"><span class="cm">// adj is symmetric, k colors</span>
+<span class="kw">module</span> <span class="fn">k_color</span> #(<span class="kw">parameter</span> V=16, K=3)(
+  <span class="kw">input</span>  adj [V][V],
+  <span class="kw">output</span> <span class="kw">reg</span>           ok,
+  <span class="kw">output</span> [$clog2(K)-1:0] color [V]
+);</div>
+        <div class="bench-foot"><span>reward: <b>correct·area</b></span><span>verifier: <b>checker</b></span></div>
+      </article>
+
+      <!-- SUBSET SUM -->
+      <article class="bench">
+        <div class="bench-top">
+          <div class="bench-cat"><span class="tag">number</span><span class="hard">difficulty ▰▰▱▱▱</span></div>
+          <h3>Subset Sum</h3>
+          <div class="npc mono">SUBSET-SUM · target T</div>
+          <p>Decide whether any subset of a multiset of integers sums exactly to T, and return the selecting bitmask.</p>
+        </div>
+        <div class="code"><span class="cm">// classic DP → systolic array</span>
+<span class="kw">module</span> <span class="fn">subset_sum</span> #(<span class="kw">parameter</span> N=24)(
+  <span class="kw">input</span>  [31:0] a [N],
+  <span class="kw">input</span>  [31:0] T,
+  <span class="kw">output</span> <span class="kw">reg</span>        hit,
+  <span class="kw">output</span> [N-1:0]   pick
+);</div>
+        <div class="bench-foot"><span>reward: <b>correct·Fmax</b></span><span>verifier: <b>oracle</b></span></div>
+      </article>
+
+      <!-- VERTEX COVER -->
+      <article class="bench">
+        <div class="bench-top">
+          <div class="bench-cat"><span class="tag">graph</span><span class="hard">difficulty ▰▰▰▱▱</span></div>
+          <h3>Minimum Vertex Cover</h3>
+          <div class="npc mono">VERTEX-COVER · size ≤ k</div>
+          <p>Find a set of ≤ k vertices touching every edge. Reward scales with how tight a cover the agent can certify in hardware.</p>
+        </div>
+        <div class="code"><span class="cm">// edges streamed as (u,v) pairs</span>
+<span class="kw">module</span> <span class="fn">vertex_cover</span> #(<span class="kw">parameter</span> V=18)(
+  <span class="kw">input</span>  edge   e [E],
+  <span class="kw">input</span>  [7:0]  k,
+  <span class="kw">output</span> <span class="kw">reg</span>        covers,
+  <span class="kw">output</span> [V-1:0]   cover_set
+);</div>
+        <div class="bench-foot"><span>reward: <b>correct·tightness</b></span><span>verifier: <b>checker</b></span></div>
+      </article>
+
+      <!-- KNAPSACK -->
+      <article class="bench">
+        <div class="bench-top">
+          <div class="bench-cat"><span class="tag">number</span><span class="hard">difficulty ▰▰▱▱▱</span></div>
+          <h3>0/1 Knapsack</h3>
+          <div class="npc mono">KNAPSACK (decision) · value ≥ V</div>
+          <p>Maximize value under a weight budget. The agent designs a pipelined DP datapath and is scored on throughput.</p>
+        </div>
+        <div class="code"><span class="cm">// W budget, maximize value</span>
+<span class="kw">module</span> <span class="fn">knapsack</span> #(<span class="kw">parameter</span> N=20)(
+  <span class="kw">input</span>  [15:0] w [N], v [N],
+  <span class="kw">input</span>  [31:0] W,
+  <span class="kw">output</span> [31:0]   best,
+  <span class="kw">output</span> [N-1:0]   take
+);</div>
+        <div class="bench-foot"><span>reward: <b>value·Fmax</b></span><span>verifier: <b>oracle</b></span></div>
+      </article>
+
+      <!-- HAMILTONIAN -->
+      <article class="bench">
+        <div class="bench-top">
+          <div class="bench-cat"><span class="tag">graph</span><span class="hard">difficulty ▰▰▰▰▱</span></div>
+          <h3>Hamiltonian Cycle</h3>
+          <div class="npc mono">HAM-CYCLE · undirected</div>
+          <p>Decide whether a cycle visits every vertex exactly once, returning the cycle order when one exists.</p>
+        </div>
+        <div class="code"><span class="cm">// backtracking → FSM on FPGA</span>
+<span class="kw">module</span> <span class="fn">ham_cycle</span> #(<span class="kw">parameter</span> V=15)(
+  <span class="kw">input</span>  adj [V][V],
+  <span class="kw">output</span> <span class="kw">reg</span>        exists,
+  <span class="kw">output</span> [3:0]    order [V]
+);</div>
+        <div class="bench-foot"><span>reward: <b>correct·cycles</b></span><span>verifier: <b>checker</b></span></div>
+      </article>
+
+      <!-- MAX CLIQUE -->
+      <article class="bench">
+        <div class="bench-top">
+          <div class="bench-cat"><span class="tag">graph</span><span class="hard">difficulty ▰▰▰▰▰</span></div>
+          <h3>Maximum Clique</h3>
+          <div class="npc mono">CLIQUE · size ≥ k</div>
+          <p>Find the largest fully-connected subgraph. The hardest family in the suite — reward rewards both correctness and clique size.</p>
+        </div>
+        <div class="code"><span class="cm">// bitset adjacency, popcount-heavy</span>
+<span class="kw">module</span> <span class="fn">max_clique</span> #(<span class="kw">parameter</span> V=20)(
+  <span class="kw">input</span>  [V-1:0] adj [V],
+  <span class="kw">output</span> [7:0]     clique_size,
+  <span class="kw">output</span> [V-1:0]   members
+);</div>
+        <div class="bench-foot"><span>reward: <b>size·Fmax</b></span><span>verifier: <b>checker</b></span></div>
+      </article>
+
+      <!-- BIN PACKING -->
+      <article class="bench">
+        <div class="bench-top">
+          <div class="bench-cat"><span class="tag">packing</span><span class="hard">difficulty ▰▰▰▱▱</span></div>
+          <h3>Bin Packing</h3>
+          <div class="npc mono">BIN-PACKING · bins ≤ B</div>
+          <p>Pack items into the fewest fixed-capacity bins. Agents trade area for parallelism in their packing datapath.</p>
+        </div>
+        <div class="code"><span class="cm">// capacity C, minimize bins</span>
+<span class="kw">module</span> <span class="fn">bin_pack</span> #(<span class="kw">parameter</span> N=24)(
+  <span class="kw">input</span>  [15:0] size [N],
+  <span class="kw">input</span>  [15:0] C,
+  <span class="kw">output</span> [7:0]     bins_used,
+  <span class="kw">output</span> [7:0]     bin_of [N]
+);</div>
+        <div class="bench-foot"><span>reward: <b>bins·area</b></span><span>verifier: <b>checker</b></span></div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- RLVR LOOP -->
+<section id="loop">
+  <div class="wrap">
+    <div class="sec-tag">// the loop</div>
+    <h2 class="sec">Reinforcement learning with verifiable rewards.</h2>
+    <p class="sec-sub">Every rollout is a closed loop from policy to silicon and back — no human in the path, no ambiguous reward.</p>
+
+    <div class="loop-grid">
+      <div class="step">
+        <div class="num">01</div>
+        <h4>Agent emits Verilog</h4>
+        <p>The policy reads a problem spec from the suite and proposes a synthesizable hardware module.</p>
+        <div class="conn">→</div>
+      </div>
+      <div class="step">
+        <div class="num">02</div>
+        <h4>Cloud FPGA build</h4>
+        <p>Yosys + nextpnr synthesize, place, route, and load the design onto a managed FPGA in seconds.</p>
+        <div class="conn">→</div>
+      </div>
+      <div class="step">
+        <div class="num">03</div>
+        <h4>Verify on-device</h4>
+        <p>Graded instances run against a formal oracle: correctness, plus Fmax and resource usage.</p>
+        <div class="conn">→</div>
+      </div>
+      <div class="step">
+        <div class="num">04</div>
+        <h4>Dense reward</h4>
+        <p>A structured, multi-axis reward returns to the trainer — verifiable, reproducible, and fast.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- API / TERMINAL -->
+<section id="api" class="api">
+  <div class="wrap api-grid">
+    <div>
+      <div class="sec-tag">// the interface</div>
+      <h2 class="sec">One API call.<br/>Spec in, reward out.</h2>
+      <p class="sec-sub">
+        Drop Manhattan Reasoning into any RL trainer. Submit a candidate design against a benchmark
+        instance and get back a structured reward with full build telemetry — correctness, timing, and area.
+        No FPGA hardware to manage, no vendor toolchain to license.
+      </p>
+      <div style="margin-top:28px;">
+        <a href="#cta" class="btn btn-primary">Get an API key →</a>
+      </div>
+    </div>
+    <div class="terminal">
+      <div class="term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="t">rollout.py — manhattan-reasoning</span></div>
+<div class="term-body"><span class="pr">$</span> <span class="cmd">pip install manhattan-reasoning</span>
+
+<span class="dim">>>></span> <span class="cmd">from manhattan import Env</span>
+<span class="dim">>>></span> <span class="cmd">env = Env(<span class="hl">"npc-suite/graph-coloring"</span>, k=3)</span>
+<span class="dim">>>></span> <span class="cmd">obs = env.reset()          <span class="dim"># formal spec + instance</span></span>
+<span class="dim">>>></span> <span class="cmd">rtl = policy(obs)          <span class="dim"># agent emits Verilog</span></span>
+<span class="dim">>>></span> <span class="cmd">r = env.step(rtl)</span>
+
+<span class="ok">✓ synth      </span> 1.2s   yosys
+<span class="ok">✓ place&route</span> 1.6s   nextpnr
+<span class="ok">✓ verify     </span> 0.3s   12/12 instances pass
+
+<span class="hl">reward</span> = {
+  correct: <span class="ok">1.0</span>,  fmax: <span class="ok">142MHz</span>,
+  luts: <span class="ok">318</span>,    ffs: <span class="ok">96</span>,   <span class="hl">total: 0.87</span>
+}</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta" class="cta">
+  <div class="wrap">
+    <div class="cta-box">
+      <h2>Train agents that reason in silicon.</h2>
+      <p>We're onboarding research labs and frontier teams to the private beta of our cloud FPGA platform and the NP-Complete Suite.</p>
+      <a href="mailto:hello@manhattanreasoning.com" class="btn btn-primary">Request beta access →</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a href="#" class="brand"><img src="assets/logo.png" alt="Manhattan Reasoning" class="brand-logo foot-logo" /></a>
+        <p>Cloud FPGA infrastructure for the next generation of hardware-reasoning agents. Open toolchains, verifiable rewards.</p>
+      </div>
+      <div class="foot-cols">
+        <div class="foot-col">
+          <h5>Product</h5>
+          <a href="#platform">Platform</a>
+          <a href="#suite">NP-Complete Suite</a>
+          <a href="#loop">How it works</a>
+          <a href="#api">Docs &amp; API</a>
+        </div>
+        <div class="foot-col">
+          <h5>Company</h5>
+          <a href="#">About</a>
+          <a href="#">Research</a>
+          <a href="#">Careers</a>
+          <a href="#cta">Contact</a>
+        </div>
+        <div class="foot-col">
+          <h5>Built on</h5>
+          <a href="#">Yosys</a>
+          <a href="#">nextpnr</a>
+          <a href="#">Verilator</a>
+          <a href="#">cocotb</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Manhattan Reasoning, Inc. · Manhattan ⊢ Reasoning</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
