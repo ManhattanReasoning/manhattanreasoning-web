@@ -5,7 +5,7 @@ Marketing landing page for [Manhattan Reasoning](https://manhattanreasoning.com)
 
 A single static `index.html` served via GitHub Pages at
 **manhattanreasoning.com**. Documentation lives separately at
-**docs.manhattanreasoning.com** ([manhattanreasoning-docs](https://github.com/Barnard-PL-Labs/manhattanreasoning-docs));
+**docs.manhattanreasoning.com** ([manhattanreasoning-docs](https://github.com/ManhattanReasoning/manhattanreasoning-docs));
 application code is in the private `Cloud_FPGA` repository.
 
 ## Editing
