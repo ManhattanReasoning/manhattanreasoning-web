@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Manhattan Reasoning — Careers Flier</title>
+  <style>
+    :root {
+      --bg: #fefdfb;
+      --ink: #17181c;
+      --ink-2: #565e6b;
+      --ink-3: #8b93a1;
+      --line: #e7e4dc;
+      --accent: #0072ff;
+      --accent-ink: #005fd6;
+      --font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    @page { size: letter; margin: 0; }
+    html, body { background: #d8d6d0; }
+    body { font-family: var(--font); color: var(--ink);
+           -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+    .page {
+      position: relative; width: 8.5in; height: 11in; margin: 0 auto;
+      background: var(--bg); overflow: hidden;
+      padding: 0.65in 0.7in 0.55in;
+      display: flex; flex-direction: column;
+    }
+    @media print { html, body { background: var(--bg); } .page { margin: 0; } }
+
+    /* manhattan-routed hairlines escaping from the die out to the page edges */
+    .traces { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+    .content { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100%; }
+
+    header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .wordmark { font-weight: 700; font-size: 15pt; letter-spacing: -0.012em; line-height: 1.35; }
+    .wordmark .l2 { color: var(--accent); }
+    .wordmark .op { font-weight: 400; }
+    .eyebrow {
+      font-family: var(--mono); font-size: 8pt; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-ink);
+      border: 1px solid var(--line); border-radius: 99px; padding: 5px 12px;
+      margin-top: 2px; background: var(--bg);
+    }
+
+    h1 {
+      margin-top: 0.42in; font-size: 41pt; font-weight: 700;
+      letter-spacing: -0.022em; line-height: 1.04;
+    }
+    .pitch {
+      margin-top: 0.18in; font-size: 13.5pt; line-height: 1.5; color: var(--ink-2);
+      max-width: 6.4in;
+    }
+    .pitch strong { color: var(--ink); font-weight: 600; }
+
+    .qr-block { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .qr-block img { width: 3.9in; height: 3.9in; display: block; }
+    .qr-caption {
+      font-family: var(--mono); font-size: 9.5pt; color: var(--ink-2);
+      letter-spacing: 0.02em; margin-top: 0.02in;
+    }
+    .qr-caption .arrow { color: var(--accent-ink); }
+
+    .ad { border-top: 1px solid var(--line); padding-top: 0.22in; }
+    .kicker {
+      font-family: var(--mono); font-size: 8pt; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-ink);
+    }
+    .ad-row { display: flex; align-items: center; gap: 0.3in; margin-top: 0.12in; }
+    .ad-copy { font-size: 11pt; line-height: 1.45; color: var(--ink-2); flex: 1; }
+    .ad-copy strong { color: var(--ink); font-weight: 600; }
+    .chip {
+      font-family: var(--mono); font-size: 10pt; white-space: nowrap;
+      background: #0d1117; color: #e8edf4; border-radius: 10px;
+      padding: 12px 18px;
+    }
+    .chip .dim { color: #718096; }
+    .features {
+      font-family: var(--mono); font-size: 8.5pt; color: var(--ink-3);
+      letter-spacing: 0.02em; margin-top: 0.14in;
+    }
+    .features b { color: var(--ink-2); font-weight: 500; }
+
+    footer {
+      margin-top: 0.22in; padding-top: 0.14in; border-top: 1px solid var(--line);
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 9.5pt; color: var(--ink-2);
+    }
+    footer .mail { font-weight: 600; color: var(--accent-ink); }
+    footer .mono { font-family: var(--mono); font-size: 8.5pt; color: var(--ink-3); }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <svg class="traces" viewBox="0 0 850 1100" preserveAspectRatio="none" aria-hidden="true">
+      <!-- breakout traces: manhattan routing only, kept clear of the QR quiet zone -->
+      <g fill="none" stroke="#005fd6" stroke-width="1" opacity="0.30">
+        <path d="M0 470 H120 V430 H205" />
+        <path d="M0 520 H95 V560 H205" />
+        <path d="M850 452 H740 V492 H645" />
+        <path d="M850 590 H760 V545 H645" />
+      </g>
+      <g fill="#005fd6" opacity="0.30">
+        <circle cx="205" cy="430" r="3.5"/><circle cx="205" cy="560" r="3.5"/>
+        <circle cx="645" cy="492" r="3.5"/><circle cx="645" cy="545" r="3.5"/>
+      </g>
+      <g fill="none" stroke="#005fd6" stroke-width="1" opacity="0.14">
+        <path d="M0 488 H105 V452 H205" />
+        <path d="M850 470 H752 V515 H645" />
+      </g>
+    </svg>
+
+    <div class="content">
+      <header>
+        <div class="wordmark">
+          <div class="l1">Manhattan <span class="op">&rarr;</span> Reasoning,</div>
+          <div class="l2">Manhattan <span class="op">&#8866;</span> Reasoning</div>
+        </div>
+        <div class="eyebrow">ICML 2026 &middot; We&rsquo;re hiring</div>
+      </header>
+
+      <h1>Intelligence doesn&rsquo;t<br/>stop at software.</h1>
+
+      <p class="pitch">
+        We&rsquo;re looking for researchers to enable the next step of hardware
+        acceleration &mdash; teaching AI to design silicon that is both correct
+        and optimal. Contact us if you are interested.
+      </p>
+
+      <div class="qr-block">
+        <img src="../assets/careers-qr.svg" alt="QR code linking to manhattanreasoning.com/careers" />
+        <div class="qr-caption">scan <span class="arrow">&#8866;</span> manhattanreasoning.com/careers</div>
+      </div>
+
+      <div class="ad">
+        <div class="kicker">While you&rsquo;re here</div>
+        <div class="ad-row">
+          <p class="ad-copy">
+            Our platform puts real silicon a few lines of Python away:
+            cloud FPGAs, open-source toolchains, and RLVR environments where agents
+            learn to design chips at the transistor level.
+          </p>
+          <div class="chip"><span class="dim">$</span> pip install manhattan-reasoning-gym</div>
+        </div>
+        <div class="features">
+          cloud FPGAs &middot; open toolchains &middot; verifiable reward signals
+        </div>
+      </div>
+
+      <footer>
+        <span>Say hello &mdash; <span class="mail">hello@manhattanreasoning.com</span></span>
+        <span class="mono">manhattanreasoning.com &middot; github.com/ManhattanReasoning</span>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>
