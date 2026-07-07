@@ -70,6 +70,7 @@ a:hover { text-decoration: underline; }
 .nav-inner {
   max-width: var(--maxw); margin: 0 auto; padding: 0 24px;
   height: 100%; display: flex; align-items: center; justify-content: space-between;
+  position: relative;
 }
 
 /* brand: live text logo. Two lines; the top line collapses on scroll, leaving
@@ -84,6 +85,7 @@ a:hover { text-decoration: underline; }
 .logo-l1, .logo-l2 {
   position: absolute; left: 0;
   transition: opacity 0.3s ease, top 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    left 0.35s cubic-bezier(0.4, 0, 0.2, 1),
     transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease;
 }
 .logo-l1 { top: 2px; color: var(--ink); }
@@ -92,7 +94,7 @@ a:hover { text-decoration: underline; }
 /* collapsed: top line fades up & out, blue line rises to the nav's center,
    turnstile turns black */
 .nav.scrolled .logo-l1 { opacity: 0; transform: translateY(-6px); }
-.nav.scrolled .logo-l2 { top: 50%; transform: translateY(-50%); }
+.nav.scrolled .logo-l2 { top: 50%; left: 50%; transform: translate(-50%, -50%); }
 .nav.scrolled .logo-l2 .op { color: var(--ink); }
 
 .nav-links { display: flex; align-items: center; gap: 28px; }
@@ -104,6 +106,26 @@ a:hover { text-decoration: underline; }
 }
 .nav.scrolled .nav-links a { text-shadow: none; }
 .nav-links a:hover { color: var(--accent-ink); text-decoration: none; }
+
+.nav-toggle {
+  display: none;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+}
+.nav-toggle span {
+  width: 16px;
+  height: 1.5px;
+  background: var(--ink);
+  border-radius: 1px;
+}
 
 .btn {
   display: inline-block;
@@ -119,6 +141,43 @@ a:hover { text-decoration: underline; }
   border: 1px solid var(--line);
 }
 .btn.ghost:hover { border-color: var(--ink-3); background: transparent; }
+
+.btn.btn-outline {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 0 0 rgba(47, 127, 184, 0);
+  animation: cta-outline-glow 8s ease-in-out infinite;
+}
+.btn.btn-outline:hover {
+  background: transparent;
+  border-color: var(--ink-3);
+  color: var(--ink);
+}
+
+@keyframes cta-outline-glow {
+  0% {
+    border-color: rgba(47, 127, 184, 0.35);
+    box-shadow: 0 0 8px rgba(47, 127, 184, 0.12);
+  }
+  33% {
+    border-color: rgba(31, 158, 137, 0.35);
+    box-shadow: 0 0 9px rgba(31, 158, 137, 0.12);
+  }
+  66% {
+    border-color: rgba(232, 104, 31, 0.35);
+    box-shadow: 0 0 9px rgba(232, 104, 31, 0.11);
+  }
+  100% {
+    border-color: rgba(47, 127, 184, 0.35);
+    box-shadow: 0 0 8px rgba(47, 127, 184, 0.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn.btn-outline { animation: none; }
+}
 
 /* ---------------- hero ---------------- */
 
@@ -415,7 +474,10 @@ a:hover { text-decoration: underline; }
 /* ---------------- responsive ---------------- */
 
 @media (max-width: 960px) {
-  .hero { min-height: 78vh; padding-top: 110px; padding-bottom: 40px; }
+  html, body { overflow-x: hidden; }
+  .container, .nav-inner { padding-left: 16px; padding-right: 16px; }
+  .nav { height: 56px; }
+  .hero { min-height: 100svh; min-height: 100dvh; padding-top: 92px; padding-bottom: 24px; }
   /* field becomes a full-bleed backdrop behind the copy, faded top-down */
   #routing-canvas {
     width: 100%; opacity: 0.55;
@@ -431,13 +493,90 @@ a:hover { text-decoration: underline; }
   }
   .beta-routing-canvas { opacity: 0.42; }
   .hero-copy { max-width: 100%; }
-  .hero h1 { font-size: clamp(2rem, 8vw, 2.6rem); white-space: normal; }  /* wrap on mobile */
-  .hero .bio { max-width: 100%; }
+  .hero h1 {
+    font-size: clamp(1.75rem, 7.2vw, 2.3rem);
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    white-space: normal;
+    text-shadow: 0 0 8px var(--bg), 0 0 8px var(--bg), 0 0 3px var(--bg);
+  }  /* wrap on mobile */
+  .hero .bio { max-width: 34ch; font-size: 0.98rem; line-height: 1.55; }
+  .hero-ctas { margin-top: 20px; }
+  .read-more { font-size: 0.98rem; }
   .hero-caption { display: none; }
   .duo { grid-template-columns: 1fr; }
   #cloud .container, #sandbox .container { grid-template-columns: 1fr; gap: 28px; }
   .form-grid { grid-template-columns: 1fr; }
-  .nav-links { gap: 18px; }
-  .nav-links a:not(.btn) { display: none; }
-  .section { padding: 72px 0; }
+  .code-head { padding: 8px 10px 8px 12px; }
+  .code-card pre { padding: 14px 14px; font-size: 0.75rem; line-height: 1.5; }
+  .beta-form-card { padding: 20px; }
+  .form-foot { gap: 12px; }
+  .nav-toggle { display: inline-flex; }
+  .nav-links {
+    display: flex;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 16px;
+    right: 16px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--bg-translucent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 10px 24px -18px rgba(15, 24, 40, 0.42);
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+    transform-origin: top right;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.24s ease, visibility 0.24s step-end;
+  }
+  .nav-links.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 0.22s ease, transform 0.26s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0s step-start;
+  }
+  .nav-links a {
+    display: block;
+    padding: 10px 12px;
+    border-radius: 8px;
+    text-shadow: none;
+  }
+  .nav-links a:hover { background: rgba(0, 114, 255, 0.08); }
+  .section { padding: 56px 0; }
+
+  body:not(.careers-page) main#top .hero {
+    justify-content: flex-start;
+  }
+  body:not(.careers-page) main#top .hero .container {
+    padding-top: clamp(36px, 9vh, 84px);
+  }
+
+  body.careers-page {
+    min-height: 100svh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+  body.careers-page main#top {
+    flex: 1;
+    display: flex;
+  }
+  body.careers-page main#top .hero {
+    flex: 1;
+    min-height: 100%;
+    width: 100%;
+    padding-bottom: 36px;
+  }
+}
+
+@media (max-width: 520px) {
+  .hero { padding-top: 84px; }
+  .hero .bio { max-width: 32ch; font-size: 0.95rem; }
 }

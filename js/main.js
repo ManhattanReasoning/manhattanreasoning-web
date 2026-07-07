@@ -14,12 +14,42 @@
   }
   /* ---- nav: border + logo -> turnstile collapse ---- */
   const nav = document.querySelector(".nav");
+  const navLinks = document.querySelector(".nav-links");
+  const navToggle = document.querySelector(".nav-toggle");
   const forceScrolled = new URLSearchParams(location.search).has("scrolled");
   // .nav.scrolled drives both the nav border and the CSS logo collapse
   const onScroll = () =>
     nav.classList.toggle("scrolled", window.scrollY > 90 || forceScrolled);
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
+
+  if (nav && navLinks && navToggle) {
+    const closeNav = () => {
+      navLinks.classList.remove("open");
+      navToggle.setAttribute("aria-expanded", "false");
+    };
+
+    navToggle.addEventListener("click", () => {
+      const isOpen = navLinks.classList.toggle("open");
+      navToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+
+    navLinks.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", closeNav);
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!nav.contains(event.target)) closeNav();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeNav();
+    });
+
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 960) closeNav();
+    });
+  }
 
   /* ---- headline: keep it on ONE line by fitting the font-size to the copy width ---- */
   (function headline() {
