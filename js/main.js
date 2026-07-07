@@ -1,5 +1,13 @@
 /* nav collapse, section reveals, live terminal, beta form */
 (function () {
+  const isHomeRoute = /(^\/$|\/index\.html$)/.test(window.location.pathname);
+  const hasExplicitHash = window.location.hash.length > 0;
+  if (isHomeRoute && !hasExplicitHash) {
+    const { pathname, search } = window.location;
+    window.history.replaceState(null, "", `${pathname}${search}#top`);
+    window.scrollTo(0, 0);
+  }
+
   // screenshot/test mode: no animations, no viewport-relative sizing
   if (new URLSearchParams(location.search).has("nofx")) {
     document.documentElement.classList.add("nofx");
