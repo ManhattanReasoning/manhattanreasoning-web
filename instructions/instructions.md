@@ -78,7 +78,7 @@ Dive into real silicon with two commands.
 
 ```pip install manhattan-reasoning-gym
 
-docker pull ghcr.io/barnard-pl-labs/mrg-sandbox:latest
+docker pull ghcr.io/manhattanreasoning/mrg-sandbox:latest
 ```
 
 Title: What Will You Build?
