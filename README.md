@@ -41,8 +41,9 @@ sources, and `assets/manhattan-reasoning-research-vision.pdf` is the built PDF
 the hero links to. Both are generated from the paper's LaTeX repo, not edited
 here — regenerate them there and copy the results across.
 
-Careers moved out of the nav to make room for it. `careers.html` is unchanged
-and still linked from the footer on `index.html`.
+Careers came out of the nav and the footer to make room for it. `careers.html`
+is unchanged and still served at `/careers.html` — the printed QR flier in
+`print/` points there — but nothing on the site links to it.
 
 ## Before going live
 
