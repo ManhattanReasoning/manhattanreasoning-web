@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Research Vision — Manhattan Reasoning</title>
+  <meta name="description" content="Lowering the barrier to entry for domain-expert FPGA acceleration: how Manhattan Reasoning plans to accelerate domain-specific architecture research with FPGAs in the cloud." />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/research.css" />
+  <meta property="og:title" content="Research Vision — Manhattan Reasoning" />
+  <meta property="og:description" content="Domain-experts hold the problems but are absent from the hardware work. A serverless cloud platform, an open toolchain, and a SAT competition for hardware-accelerated solvers." />
+  <meta property="og:type" content="article" />
+</head>
+<body class="research-page">
+
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <!-- ================= nav ================= -->
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="index.html#top" aria-label="Manhattan Reasoning">
+        <span class="logo" aria-hidden="true">
+          <span class="logo-l1">Manhattan <span class="op">&rarr;</span> Reasoning,</span>
+          <span class="logo-l2">Manhattan <span class="op">&#8866;</span> Reasoning</span>
+        </span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="nav-links" id="site-nav">
+        <a href="index.html#cloud">Cloud</a>
+        <a href="index.html#sandbox">Sandbox</a>
+        <a href="https://docs.manhattanreasoning.com">Docs</a>
+        <a href="research.html">Research</a>
+        <a href="index.html#beta">Beta Access</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ================= hero ================= -->
+    <header class="paper-hero">
+      <div class="container">
+        <div>
+          <p class="eyebrow">Research vision, Fall 2026</p>
+          <h1>Lowering the Barrier to Entry for Domain-Expert FPGA Acceleration</h1>
+          <p class="subtitle">How Manhattan Reasoning plans to accelerate domain-specific architecture research with FPGAs in the cloud.</p>
+          <div class="byline">
+            <p class="names">Christian Scaff, Zenas Boamah, Andrew Bonilla, Mark Santolucito</p>
+            <p class="affils">Formal Methods and Reasoning Group, Columbia University &middot; Haverford College &middot; Barnard College, Columbia University</p>
+          </div>
+          <div class="hero-actions">
+            <a class="btn" href="assets/manhattan-reasoning-research-vision.pdf">Read the PDF</a>
+            <a class="btn ghost" href="index.html#beta">Request beta access</a>
+          </div>
+        </div>
+
+        <div class="hero-abstract" id="abstract">
+          <p>Domain-specific architectures are increasingly built to accelerate individual workloads on FPGAs such as deep learning, genomics, and boolean satisfiability. Yet the researchers who hold the domain problems are largely absent from the hardware work: across three decades of SAT solving, hardware publications roughly doubled while the share co-authored with the software SAT community fell from 37% to 10%. We argue this reflects not only the difficulty of implementing solvers in hardware, but the cost of access to boards, licenses, and hardware expertise.</p>
+          <p>We present a serverless cloud platform that removes those costs, letting users program remote FPGAs from Python on an open toolchain with no license seats to constrain agentic iteration. It runs today on seven Lattice ECP5 boards and opens to public beta in December 2026. In a pilot, frontier coding agents optimized a SAT solver on real silicon: each improved on the baseline, none reached algorithmic techniques beyond its DPLL core. We propose a SAT competition with an AI-generated track for hardware-accelerated solvers, so that domain-experts can prototype accelerators without first becoming hardware engineers.</p>
+        </div>
+      </div>
+    </header>
+
+    <div class="read">
+
+      <!-- ================= section rail ================= -->
+      <nav class="rail" aria-label="Sections">
+        <ol>
+          <li><a href="#abstract"><span class="n"></span><span>Abstract</span></a></li>
+          <li><a href="#introduction"><span class="n">1</span><span>Introduction</span></a></li>
+          <li><a href="#motivation"><span class="n">2</span><span>Motivation</span></a></li>
+          <li><a href="#vision"><span class="n">3</span><span>Research Vision</span></a></li>
+          <li><a class="sub" href="#platform-development"><span class="n">3.1</span><span>Platform Development</span></a></li>
+          <li><a class="sub" href="#application-exploration"><span class="n">3.2</span><span>Application Exploration</span></a></li>
+          <li><a href="#conclusion"><span class="n">4</span><span>Conclusion</span></a></li>
+          <li><a href="#appendix"><span class="n">A</span><span>The EchoPeripheral Design</span></a></li>
+          <li><a href="#references"><span class="n"></span><span>References</span></a></li>
+        </ol>
+      </nav>
+
+      <!-- ================= prose ================= -->
+      <article class="prose">
+
+        <!-- ---------------- 1. Introduction ---------------- -->
+        <section id="introduction">
+          <h2><span class="num">1</span><span>Introduction</span></h2>
+
+          <p>In their Turing lecture in 2018, John Hennessy and David Patterson talked of a new Golden Age of computer architecture<span class="cite"><a href="#ref-12">[12]</a></span>. An age marked by the end of Dennard scaling and Moore&rsquo;s law, and the rise of domain-specific architectures (DSAs). They named four criteria for this new age: (1)&nbsp;hardware/software co-design for high-level and domain-specific languages, (2)&nbsp;enhanced security, (3)&nbsp;free and open architectures, and <strong>(4)&nbsp;agile chip development where hardware design becomes more like software design.</strong></p>
+
+          <p>DSAs are specialized computer architectures designed to accelerate workloads in a given application domain, contrasting general-purpose architectures such as CPUs<span class="cite"><a href="#ref-11">[11, p.&nbsp;540]</a></span>. DSAs have found use in a variety of domains, including deep learning (TPUs)<span class="cite"><a href="#ref-16">[16]</a></span>, datacenter acceleration (Catapult)<span class="cite"><a href="#ref-26">[26]</a></span>, and molecular dynamics (Anton&nbsp;3)<span class="cite"><a href="#ref-30">[30]</a></span>, to name a few.</p>
+
+          <p>A common method for prototyping and exploring novel DSAs is the use of field-programmable gate arrays (FPGAs), which allow candidate designs to be evaluated on real hardware before committing to silicon<span class="cite"><a href="#ref-17">[17]</a>,&thinsp;<a href="#ref-3">[3]</a></span>. Beyond prototyping, FPGAs have shown promise in accelerating a variety of domain-specific workloads, including molecular dynamics<span class="cite"><a href="#ref-36">[36]</a></span>, high-frequency trading<span class="cite"><a href="#ref-18">[18]</a></span>, genomics<span class="cite"><a href="#ref-27">[27]</a></span>, boolean satisfiability<span class="cite"><a href="#ref-21">[21]</a></span>, astronomy<span class="cite"><a href="#ref-22">[22]</a></span>, economics<span class="cite"><a href="#ref-8">[8]</a></span>, and even music<span class="cite"><a href="#ref-35">[35]</a></span>.</p>
+
+          <p>Despite the promise of FPGAs in accelerating DSA research, there are significant barriers to entry for the greater research community. FPGAs are difficult to program, requiring expertise in hardware description languages (HDLs) such as Verilog or VHDL, creating a steep learning curve for software programmers. While high-level synthesis (HLS) tools have been developed to allow programming FPGAs in higher-level languages such as C/C++, it is still often difficult for general software designers with limited hardware experience: a naive HLS C implementation of a CNN yields an accelerator 80&times; slower than a single-threaded CPU, while an expert-tuned version of the same kernel achieves a roughly 7,041&times; speedup<span class="cite"><a href="#ref-32">[32]</a></span>.</p>
+
+          <p>While there are consumer-grade FPGA development boards under $200, the steep learning curve and a comparatively small tooling and library ecosystem often position GPUs as the preferred platform for researchers<span class="cite"><a href="#ref-34">[34]</a></span>. AWS F2 instances provide access to high-end FPGAs in the cloud, but are subject to a gap in domain-expert knowledge and cloud-systems expertise, which can make it difficult to get started<span class="cite"><a href="#ref-8">[8]</a>,&thinsp;<a href="#ref-19">[19]</a></span>.</p>
+
+          <p>We propose a serverless programming model for FPGAs that allows domain-experts to access FPGAs in the cloud, with a focus on tighter integration of coding agents and large language models (LLMs) into the development process. Our approach aims to allow domain-experts with limited hardware background to explore novel DSAs on FPGAs.</p>
+        </section>
+
+        <!-- ---------------- 2. Motivation ---------------- -->
+        <section id="motivation">
+          <h2><span class="num">2</span><span>Motivation</span></h2>
+
+          <p>Manhattan Reasoning is motivated from our own experience as domain-experts in formal methods and automated reasoning. Boolean satisfiability (SAT) was the first problem shown to be NP-complete<span class="cite"><a href="#ref-10">[10]</a></span>, and modern solvers now underpin work across formal verification<span class="cite"><a href="#ref-5">[5]</a></span>, artificial intelligence<span class="cite"><a href="#ref-7">[7, Ch.&nbsp;19]</a></span>, circuit design<span class="cite"><a href="#ref-7">[7, Ch.&nbsp;27]</a></span>, and automated theorem proving<span class="cite"><a href="#ref-7">[7, Ch.&nbsp;33]</a></span>.</p>
+
+          <figure class="plate zoomable" id="fig-1">
+            <div class="plate-body" tabindex="0" role="button" aria-label="Enlarge Figure 1">
+              <img src="assets/figures/sat_publications.svg"
+                   alt="A scatter plot of publications per year from 2000 to 2025 with two series. Software SAT algorithm papers scatter between 2 and 53 per year around a mean of about 35. Hardware-accelerated SAT papers scatter between 2 and 16 per year around a mean of about 6. The two groups of points do not overlap." />
+              <span class="zoom-hint">click to enlarge</span>
+            </div>
+            <figcaption><span class="fignum">Figure 1.</span> Research attention on SAT solving, 2000&ndash;2025: publications that accelerate SAT solving in <em>hardware</em> against publications that advance SAT solving <em>algorithms</em> in software. Dashed lines mark each series&rsquo; mean. Both series come from a single OpenAlex query, classified by whether SAT is the workload being accelerated or the algorithm being improved; papers that merely <em>use</em> a solver are excluded from both.</figcaption>
+          </figure>
+
+          <p>The varying range of practical applications of SAT has led to research in accelerating SAT solving via DSAs as to parallelize the workload and improve performance relative to general-purpose CPUs, dating back to 1998<span class="cite"><a href="#ref-31">[31]</a>,&thinsp;<a href="#ref-37">[37]</a></span>. However, there has been limited progress in adopting SAT hardware accelerators due to the difficulty of implementing the dynamic data structures needed to support modern SAT solving algorithms<span class="cite"><a href="#ref-21">[21]</a></span>. Despite this difficulty, recent publications have shown promise in stand-alone hardware accelerators with SAT-Accel achieving 2.8&times; speedup over previous state of the art CPU-based solver Kissat and VeriSAT achieving up to a 17.94&times; speedup over SAT-Accel<span class="cite"><a href="#ref-21">[21]</a>,&thinsp;<a href="#ref-33">[33]</a></span>.</p>
+
+          <figure class="plate zoomable" id="fig-2">
+            <div class="plate-body" tabindex="0" role="button" aria-label="Enlarge Figure 2">
+              <img src="assets/figures/sat_authorship.svg" loading="lazy"
+                   alt="A bar chart of hardware SAT publications grouped into four eras from 2000 to 2025. Each bar is split into the share written with at least one software SAT researcher and the share written without one. The co-authored share falls from 37 percent in 2000 to 2006 to 10 percent in 2019 to 2025 while total publications roughly double." />
+              <span class="zoom-hint">click to enlarge</span>
+            </div>
+            <figcaption><span class="fignum">Figure 2.</span> The hardware SAT literature grew; the SAT software community&rsquo;s participation in it did not. Each bar is all hardware-acceleration publications in an era (148 papers, 2000&ndash;2025); the filled segment is those with at least one author who has 3 or more publications in the software SAT-algorithms class. Participation falls from 37% to 10% while the literature itself roughly doubles, the sharpest break coming after 2012.</figcaption>
+          </figure>
+
+          <p>With recent advancements in hardware acceleration for SAT solving, we hypothesize that the gap between research exploration in software SAT algorithms and hardware acceleration shown in <a href="#fig-1">Figure&nbsp;1</a> is not solely due to the difficulty of implementing SAT solvers in hardware, but also the lack of accessible tools and platforms for domain-experts to explore hardware acceleration. <a href="#fig-2">Figure&nbsp;2</a> groups these hardware publications into four eras and marks those co-authored by an established software SAT researcher. The hardware literature roughly doubled over this period, while the share written with the software community fell from 37% to 10%. Hardware SAT research is growing without the software community. This lack of collaboration can be further seen in the lack of a hardware track in the SAT competition, despite the fact that the SAT competition has been running since 2002 and has a dedicated track for parallel SAT solvers<span class="cite"><a href="#ref-28">[28]</a></span>.</p>
+        </section>
+
+        <!-- ---------------- 3. Research Vision ---------------- -->
+        <section id="vision">
+          <h2><span class="num">3</span><span>Research Vision</span></h2>
+
+          <p>We aim to lower the barrier to entry to DSA research for domain-experts by providing a cloud programming platform for FPGAs. Our platform is denoted by:</p>
+
+          <ul class="points">
+            <li><b>A serverless programming model for FPGAs:</b> We provide a serverless programming model in Python for FPGAs that allows domain-experts to access FPGAs in the cloud without needing to manage the underlying cloud infrastructure.</li>
+            <li><b>Coding Agent Integration:</b> We build our platform on FPGAs supported by open-source toolchains such as nextpnr<span class="cite"><a href="#ref-29">[29]</a></span>, which impose no licence-seat limit on the parallel, high-volume compilation that agentic iteration requires.</li>
+          </ul>
+
+          <p>We plan to illustrate the utility of our platform through a case study on SAT solving, which is within our own domain. In particular, we will explore the following:</p>
+
+          <ul class="points">
+            <li><b>SAT FPGA Competition:</b> We will organize a competition inspired by the SAT Competition<span class="cite"><a href="#ref-28">[28]</a></span>, focusing solely on an AI-generated track to capitalize on the benefits of coding agents for assisting domain-experts unfamiliar with RTL.</li>
+            <li><b>Fine-tuning an Open Source Model:</b> We will fine-tune an open-source model on RLVR SAT tasks as our own entry into the competition.</li>
+            <li><b>Transferability Research:</b> We will investigate the transferability of our model on RTL benchmarks such as CVDP<span class="cite"><a href="#ref-25">[25]</a></span>.</li>
+          </ul>
+
+          <p>We will also explore the potential for physical FPGA feedback in the loop for training on real clock speeds.</p>
+
+          <figure class="plate zoomable" id="fig-3">
+            <div class="plate-body" tabindex="0" role="button" aria-label="Enlarge Figure 3">
+              <img src="assets/figures/research_roadmap.svg" loading="lazy"
+                   alt="A branching roadmap diagram. A node labelled Manhattan Reasoning Gym sits at the present and forks into two threads. The upper thread runs through private beta to public release. The lower thread runs through SAT RLVR, which branches into the SAT FPGA Competition and RTL transferability research." />
+              <span class="zoom-hint">click to enlarge</span>
+            </div>
+            <figcaption><span class="fignum">Figure 3.</span> The research roadmap for Manhattan Reasoning, showing the two threads of work that fork at the present. The left-to-right flow indicates ordering. The two threads are (1)&nbsp;platform development and (2)&nbsp;platform-application research on SAT solving. The latter thread emits two children, one up into the SAT FPGA Competition and one down into reinforcement learning with SAT as the foundation, which in turn feeds the competition. We will also explore the transferability of our model on RTL benchmarks.</figcaption>
+          </figure>
+
+          <p><a href="#fig-3">Figure&nbsp;3</a> conveys our research vision, which is organized into two core threads: (1)&nbsp;continued development of our platform and (2)&nbsp;exploration of the utility of our platform through applications in SAT solving.</p>
+
+          <h3 id="platform-development">3.1&emsp;Platform Development</h3>
+
+          <h4 id="current-state">3.1.1&emsp;Current State of the Platform</h4>
+
+          <p>The current platform is in the early stages of development, and is characterized by a serverless programming model in Python, which allows domain-experts to access FPGAs in the cloud without needing to manage the underlying cloud infrastructure, including the provisioning, flashing, and clean-up of an FPGA<span class="cite"><a href="#ref-15">[15, p.&nbsp;6]</a></span>. We utilize memory-mapped I/O<span class="cite"><a href="#ref-4">[4, p.&nbsp;664]</a></span> in a remote setting: users read and write to the FPGA&rsquo;s memory from their Python programs as if it were local memory. Extending a peripheral interface across machines in this way is established practice seen in USB and PCIe, allowing devices to be used &ldquo;as if they were locally attached&rdquo;<span class="cite"><a href="#ref-13">[13]</a>,&thinsp;<a href="#ref-23">[23]</a></span>. We attribute high emphasis to the concept of transparency defined by Nelson in his 1981 dissertation. Nelson defines transparency over programming language mechanisms in general, naming remote procedure call (RPC) as one instance of it:</p>
+
+          <blockquote>
+            <p>Two programming language mechanisms are transparent if they have identical syntax and semantics. In particular, a transparent language-level RPC mechanism is one in which local procedures and remote procedures are (effectively) indistinguishable to the programmer.</p>
+            <cite>Bruce Jay Nelson, <a href="#ref-24">Remote Procedure Call</a>, 1981, p.&nbsp;6</cite>
+          </blockquote>
+
+          <p>We employ transparency in our goal to make FPGA programming accessible to domain-experts.</p>
+
+          <p><a href="#fig-4">Figure&nbsp;4</a> shows a simple example of a user instantiating an Amaranth HDL module described in <a href="#fig-8">Figure&nbsp;8</a> on an FPGA and interacting with it through a python program. The user does not need to physically manage the FPGA, nor do they need to write any device drivers or firmware to interact with the FPGA. <a href="#fig-5">Figure&nbsp;5</a> illustrates how the program seen in <a href="#fig-4">Figure&nbsp;4</a> abstracts the complexity of interacting with the FPGA over the network. The platform currently consists of 7 Lattice ECP5 FPGAs hosted on a local subnet and currently only supports single tenet usage.</p>
+
+          <figure class="plate" id="fig-4">
+            <div class="code-card">
+              <div class="code-head">
+                <span class="fname">hello_world.py</span>
+                <button class="copy-btn" type="button">Copy</button>
+              </div>
+              <pre><code><span class="tok-kw">import</span> manhattan_reasoning_gym <span class="tok-kw">as</span> mrg
+
+
+<span class="tok-kw">class</span> <span class="tok-fn">Regs</span>(mrg.cloud.RegisterMap):
+    ECHO = <span class="tok-num">0x0000</span>
+
+
+app = mrg.cloud.<span class="tok-fn">App</span>(
+    <span class="tok-str">&quot;hello_world&quot;</span>,
+    design=<span class="tok-str">&quot;examples/hello_world_rtl.py&quot;</span>,
+    registers=Regs,
+)
+
+
+<span class="tok-dec">@app.local_entrypoint</span>()
+<span class="tok-kw">def</span> <span class="tok-fn">main</span>():
+    <span class="tok-kw">with</span> app:
+        pattern = [<span class="tok-num">0xDEADBEEF</span>, <span class="tok-num">0xCAFEBABE</span>, <span class="tok-num">0x12345678</span>, <span class="tok-num">0xABCDEF01</span>]
+
+        <span class="tok-fn">print</span>(<span class="tok-str">&quot;writing pattern ...&quot;</span>)
+        <span class="tok-kw">for</span> i, word <span class="tok-kw">in</span> <span class="tok-fn">enumerate</span>(pattern):
+            app.<span class="tok-fn">write</span>(Regs.ECHO + i * <span class="tok-num">4</span>, word)
+
+        <span class="tok-fn">print</span>(<span class="tok-str">&quot;reading back ...&quot;</span>)
+        <span class="tok-kw">for</span> i, expected <span class="tok-kw">in</span> <span class="tok-fn">enumerate</span>(pattern):
+            res = app.<span class="tok-fn">read</span>(Regs.ECHO + i * <span class="tok-num">4</span>)
+            <span class="tok-fn">print</span>(<span class="tok-str">f&quot;  [{i}] {res:#010x}&quot;</span>)</code></pre>
+            </div>
+            <figcaption><span class="fignum">Figure 4.</span> The complete host program for <code>hello_world</code>, which writes four words to an echo RAM on the FPGA and reads them back.</figcaption>
+          </figure>
+
+          <figure class="plate zoomable" id="fig-5">
+            <div class="plate-body" tabindex="0" role="button" aria-label="Enlarge Figure 5">
+              <img src="assets/figures/platform_flow.svg" loading="lazy"
+                   alt="A sequence diagram in three bands. The client column shows the host program entering a context, writing and reading registers, and exiting. The control plane band shows the build pipeline claiming a build slot, synthesising and placing-and-routing the design, flashing an idle FPGA, then carrying each Wishbone read and write, and finally flashing a clear image on cleanup. The server column shows the FPGA fabric holding the user design." />
+              <span class="zoom-hint">click to enlarge</span>
+            </div>
+            <figcaption><span class="fignum">Figure 5.</span> One session of the program in <a href="#fig-4">Figure&nbsp;4</a>, seen from behind the SDK. The Client column is that program in order. &#9312;&nbsp;Entering the context deploys the design: the pipeline claims one of seven build slots, synthesises and places-and-routes it on a single Fargate task, and flashes the result onto whichever FPGA is idle. &#9313;&nbsp;Each <code>write</code> and <code>read</code> then crosses the control plane as one Wishbone transaction &mdash; an address and a data word out, an acknowledgement or a data word back &mdash; reaching the user&rsquo;s 2&thinsp;KB region and nothing else on the SoC. &#9314;&nbsp;Leaving the context flashes a clear image, which is what wipes the design before the board is handed to the next session. Two elisions for legibility: the figure shows one write and one read where the program loops four times, and the design is built and flashed on first use rather than at <code>__enter__</code> itself.</figcaption>
+          </figure>
+
+          <h4 id="platform-beta">3.1.2&emsp;Platform Beta and Public Release</h4>
+
+          <p>We plan to release a private beta of our platform in the coming weeks, with a public beta release planned for December. The private beta will be limited to a small, but incrementally increasing, group of users who will be able to access the platform and provide feedback on usability and performance. In order to facilitate the private beta, we will examine payment platforms and a user database to manage access to the platform prior to the private beta release. We plan to supply usage credits free of charge to beta testers. Through the beta, we will conduct user studies on the accessibility of the platform for domain-experts with limited hardware experience in comparison to F2 instances, HLS, and other traditional development approaches. We expect to continually maintain the platform and add new features as betas are conducted and feedback is received from the community.</p>
+
+          <p>As we conduct our user studies, the following research questions will be explored:</p>
+
+          <ul class="points">
+            <li><b>Accessibility.</b> Does the platform provide a more accessible development experience for domain-experts compared to traditional FPGA development approaches (Existing Cloud Compute Options (F2), HLS vs RTL w/ Agentic Approaches)?</li>
+            <li><b>Performance.</b> Does the platform provide a comparable time from a design change to results on real hardware for domain-experts compared to traditional FPGA development approaches?</li>
+            <li><b>AI Integration.</b> Does the platform provide sufficient tooling to support efficient agentic development for FPGAs?</li>
+          </ul>
+
+          <p>We plan to release the platform publicly in December, with the goal of being in a stable state such that a group of users can concurrently access the infrastructure without slowdowns or failures while having sufficient tooling to support their development needs.</p>
+
+          <h4 id="future-platform">3.1.3&emsp;Future Platform Development</h4>
+
+          <p>While Lattice ECP5 FPGAs remain the primary target for our platform for the coming months due to its support for open-source toolchains that benefit agentic development, we recognize that real acceleration-workloads require larger industry-grade FPGAs with more resources. We plan to explore AWS F2 instances as an optional backend for our platform which would allow users to switch between ECP5s for exploratory development and F2 instances for production workloads while maintaining the same level of accessibility.</p>
+
+          <h3 id="application-exploration">3.2&emsp;Application Exploration</h3>
+
+          <h4 id="sat-fpga-competition">3.2.1&emsp;SAT FPGA Competition</h4>
+
+          <p>The International SAT Competition<span class="cite"><a href="#ref-14">[14]</a></span> has been accelerating research in SAT solving for over 20 years with solvers increasingly becoming more powerful and efficient. <a href="#fig-6">Figure&nbsp;6</a> shows this upward progress across three decades of historical solvers preserved and re-run by the SAT Museum<span class="cite"><a href="#ref-6">[6]</a></span>. More recent solvers are able to solve more problems within the same time limit compared to older ones.</p>
+
+          <figure class="plate zoomable" id="fig-6">
+            <div class="plate-body" tabindex="0" role="button" aria-label="Enlarge Figure 6">
+              <img src="assets/figures/sat_museum.svg" loading="lazy"
+                   alt="A cactus plot of SAT competition all-time winners run on the 2022 benchmark set. Each curve plots solved instances against time in seconds up to 5,000 seconds. Solvers from the 1990s solve fewer than 100 instances; solvers from the 2020s solve close to 280." />
+              <span class="zoom-hint">click to enlarge</span>
+            </div>
+            <figcaption><span class="fignum">Figure 6.</span> Reproduced from the SAT Museum<span class="cite"><a href="#ref-6">[6]</a></span>.</figcaption>
+          </figure>
+
+          <p>In the recent years, there is growing interest in promoting agentic development through competitions. The 2026 SAT Competition included sub-tracks for AI-generated and/or AI-tuned solvers within each of its Main, Experimental, Parallel, and Cloud tracks<span class="cite"><a href="#ref-28">[28]</a></span>. The 36th International Conference on Field-Programmable Logic and Applications (FPL) will feature an FPGA Optimization Contest sponsored by AMD where agents will optimize maximum clock frequency (Fmax) for existing placed-and-routed designs<span class="cite"><a href="#ref-2">[2]</a></span>.</p>
+
+          <p>Despite these advancements, the SAT Competition has yet to include a hardware track. We will explore the potential for a SAT competition focused on hardware accelerated solvers, with a particular focus on an AI-generated track to capitalize on the benefits of coding agents for assisting domain-experts unfamiliar with RTL.</p>
+
+          <figure class="plate zoomable" id="fig-7">
+            <div class="plate-body" tabindex="0" role="button" aria-label="Enlarge Figure 7">
+              <img src="assets/figures/sat_pareto.svg" loading="lazy"
+                   alt="A scatter plot of cumulative tokens spent in millions against a quality score A. Marks are shown for GPT-5.6 Terra and Claude Sonnet 5, each in a simulation-only and a physical-hardware condition. A dashed efficient frontier rises from the seed at zero. Every lineage improves on the seed; the physical-hardware runs reach the highest scores at higher token spend." />
+              <span class="zoom-hint">click to enlarge</span>
+            </div>
+            <figcaption><span class="fignum">Figure 7.</span> Agent spend against solver quality on real silicon, for two models each under simulation and physical-hardware grounding. A mark is one archived champion at its round&rsquo;s cumulative tokens; the faint line joins a lineage&rsquo;s best across rounds 1&ndash;3, unconnected marks are runners-up. <em>A</em>&nbsp;=&nbsp;<em>r</em><sub>correct</sub>(<em>r</em><sub>perf</sub>&nbsp;+&nbsp;ln(<em>u</em><sub>seed</sub>/<em>u</em><sub>cand</sub>)), so the seed sits at <em>A</em>&nbsp;=&nbsp;0.</figcaption>
+          </figure>
+
+          <p>As a proof of concept, we evaluated current LLM capabilities in optimizing SAT solvers for FPGAs. We prompted frontier LLMs under a bare-bones agentic harness to optimize a baseline DPLL solver for latency and resource utilization, allowing some of the models to experiment with different clock speeds on physical hardware during the agentic loop. <a href="#fig-7">Figure&nbsp;7</a> conveys the results. We found that while frontier models were able to conduct basic optimizations, neither moved beyond the seed&rsquo;s DPLL to established algorithmic advances such as clause learning or watched literals. We plan to go beyond AI-optimization, and explore the potential for an AI-generated track where agents can explore entirely new algorithmic approaches for SAT solvers on FPGAs.</p>
+
+          <p>In the following months, we plan to create a competition benchmark and proposal paper for a SAT FPGA competition. We will enter our own entry as a proof of concept for the competition. We will explore the following research questions:</p>
+
+          <ul class="points">
+            <li><b>Benchmarks.</b> What are the appropriate benchmarks for a SAT FPGA competition? Existing SAT Competition Benchmarks yield a wide range of meaningful problems, however, FPGAs are bounded by their on-chip memory, limiting the size of problems that can be solved.</li>
+            <li><b>Scoring.</b> What is the appropriate scoring metric for a SAT FPGA competition? Should token-spend be considered in the scoring metric to incentivize efficient agentic development?</li>
+            <li><b>Entry Constraints.</b> What kind of entries are allowed? Must they be AI-generated, AI-tuned, or both? May they use physical FPGA feedback in the loop? Are hand-written elements permitted? And may they start from an existing SAT solver, or must they be entirely new designs? How do we govern agentic harnesses versus post-training methods? Is the solver the entry or the agent/model?</li>
+          </ul>
+
+          <h4 id="fine-tuning">3.2.2&emsp;Fine-tuning an Open Source Model</h4>
+
+          <p>To further motivate our competition, we plan to fine-tune an open-source model as our own entry. Past work such as ChipSeek has shown promise in reinforcement learning for power, area, and performance (PPA) in RTL tasks<span class="cite"><a href="#ref-9">[9]</a></span>. SAT has specifically demonstrated the potential for reinforcement learning with verifiable rewards (RLVR). SATURN illustrates the use of 3-SAT for improving reasoning in LLMs due to its scalability, verifiability, and controllable difficulty<span class="cite"><a href="#ref-20">[20]</a></span>. However, the shift from textual reasoning to generalizable RTL opens questions for whether or not SAT is a suitable task for RLVR in RTL-focused LLMs.</p>
+
+          <p>Through the following months, we plan to evaluate the following research questions:</p>
+
+          <ul class="points">
+            <li><b>SAT Instances.</b> Does SATURN&rsquo;s 3-SAT provide a suitable task for RLVR in RTL-focused LLMs? Or do we necessitate a more generalizable SAT task?</li>
+            <li><b>Physical Feedback.</b> Does physical FPGA feedback in the loop improve the performance of RLVR in RTL-focused LLMs? We plan to only explore clock-speed as a physical feedback metric for our reinforcement learning.</li>
+            <li><b>Transferability.</b> Does fine-tuning on SAT tasks transfer beyond our competition to other PPA RTL benchmarks such as CVDP<span class="cite"><a href="#ref-25">[25]</a></span> or Pluto<span class="cite"><a href="#ref-1">[1]</a></span>?</li>
+          </ul>
+        </section>
+
+        <!-- ---------------- 4. Conclusion ---------------- -->
+        <section id="conclusion">
+          <h2><span class="num">4</span><span>Conclusion</span></h2>
+
+          <p>Despite the promise of DSAs, domain-experts remain shut out of FPGA acceleration by the steep learning curve of hardware design. We built a platform that aims to remove those barriers through serverless Python access and open toolchains that support agentic iteration, letting domain-experts explore DSA applications without acquiring an FPGA, software licenses, or hardware expertise.</p>
+
+          <p>We found that frontier models could design working RTL on our platform but stopped short of algorithmic advances in SAT solving, leaving a gap that a competition is well suited to close. We propose such a competition, centered on an AI-generated track for hardware accelerated solvers, and will demonstrate its feasibility with our own entry: an open-source model post-trained on SAT instances, which we hypothesize will transfer to broader RTL benchmarks. The competition is bounded by the SAT instances that fit within FPGA on-chip memory.</p>
+
+          <p>We will open public beta access in December 2026, with the competition benchmark and proposal to follow. Our aim is the agile hardware development Hennessy and Patterson name as a condition of their new Golden Age: hardware design that works like software design<span class="cite"><a href="#ref-12">[12]</a></span>.</p>
+
+          <div class="paper-close">
+            <div class="actions">
+              <a class="btn" href="index.html#beta">Request beta access</a>
+              <a class="btn ghost" href="assets/manhattan-reasoning-research-vision.pdf">Download the PDF</a>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------------- Appendix ---------------- -->
+        <section id="appendix">
+          <h2><span class="num">A</span><span>The <code>EchoPeripheral</code> User Design</span></h2>
+
+          <figure class="plate" id="fig-8">
+            <div class="code-card">
+              <div class="code-head">
+                <span class="fname">echo_peripheral.py</span>
+                <button class="copy-btn" type="button">Copy</button>
+              </div>
+              <pre><code><span class="tok-kw">from</span> amaranth.hdl <span class="tok-kw">import</span> Elaboratable, Module, Signal
+<span class="tok-kw">from</span> amaranth.lib.memory <span class="tok-kw">import</span> Memory
+
+<span class="tok-cm"># 512 words x 4 bytes = 2048 bytes: exactly the user design region.</span>
+DEPTH = <span class="tok-num">512</span>
+
+
+<span class="tok-kw">class</span> <span class="tok-fn">EchoPeripheral</span>(Elaboratable):
+
+    <span class="tok-kw">def</span> <span class="tok-fn">__init__</span>(<span class="tok-kw">self</span>, depth=DEPTH):
+        <span class="tok-kw">self</span>.depth = depth
+
+        <span class="tok-cm"># (depth - 1).bit_length() = 9 for depth=512.</span>
+        addr_bits = (depth - <span class="tok-num">1</span>).<span class="tok-fn">bit_length</span>()
+
+        <span class="tok-cm"># Wishbone inputs (driven by the bus master / firmware).</span>
+        <span class="tok-kw">self</span>.wb_cyc = <span class="tok-fn">Signal</span>()
+        <span class="tok-kw">self</span>.wb_stb = <span class="tok-fn">Signal</span>()
+        <span class="tok-kw">self</span>.wb_we = <span class="tok-fn">Signal</span>()
+        <span class="tok-kw">self</span>.wb_adr = <span class="tok-fn">Signal</span>(addr_bits)
+        <span class="tok-kw">self</span>.wb_dat_w = <span class="tok-fn">Signal</span>(<span class="tok-num">32</span>)
+        <span class="tok-kw">self</span>.wb_sel = <span class="tok-fn">Signal</span>(<span class="tok-num">4</span>)
+
+        <span class="tok-cm"># Wishbone outputs (driven by this peripheral).</span>
+        <span class="tok-kw">self</span>.wb_dat_r = <span class="tok-fn">Signal</span>(<span class="tok-num">32</span>)
+        <span class="tok-kw">self</span>.wb_ack = <span class="tok-fn">Signal</span>()
+
+    <span class="tok-kw">def</span> <span class="tok-fn">elaborate</span>(<span class="tok-kw">self</span>, platform):
+        m = <span class="tok-fn">Module</span>()
+
+        <span class="tok-cm"># Memory without init so synthesis infers block RAM on ECP5.</span>
+        m.submodules.mem = mem = <span class="tok-fn">Memory</span>(shape=<span class="tok-num">32</span>, depth=<span class="tok-kw">self</span>.depth, init=[])
+        rd = mem.<span class="tok-fn">read_port</span>(domain=<span class="tok-str">&quot;sync&quot;</span>, transparent_for=[])
+        wr = mem.<span class="tok-fn">write_port</span>(domain=<span class="tok-str">&quot;sync&quot;</span>)
+
+        m.d.comb += [
+            rd.addr.<span class="tok-fn">eq</span>(<span class="tok-kw">self</span>.wb_adr),
+            wr.addr.<span class="tok-fn">eq</span>(<span class="tok-kw">self</span>.wb_adr),
+            wr.data.<span class="tok-fn">eq</span>(<span class="tok-kw">self</span>.wb_dat_w),
+            <span class="tok-kw">self</span>.wb_dat_r.<span class="tok-fn">eq</span>(rd.data),
+        ]
+
+        <span class="tok-cm"># Write enable fires the cycle stb arrives; the write completes</span>
+        <span class="tok-cm"># on the next clock edge, the same edge ack fires.</span>
+        m.d.comb += wr.en.<span class="tok-fn">eq</span>(
+            <span class="tok-kw">self</span>.wb_cyc &amp; <span class="tok-kw">self</span>.wb_stb &amp; <span class="tok-kw">self</span>.wb_we &amp; ~<span class="tok-kw">self</span>.wb_ack
+        )
+
+        <span class="tok-cm"># Ack: assert one cycle after cyc+stb, then clear.</span>
+        <span class="tok-kw">with</span> m.<span class="tok-fn">If</span>(<span class="tok-kw">self</span>.wb_cyc &amp; <span class="tok-kw">self</span>.wb_stb &amp; ~<span class="tok-kw">self</span>.wb_ack):
+            m.d.sync += <span class="tok-kw">self</span>.wb_ack.<span class="tok-fn">eq</span>(<span class="tok-num">1</span>)
+        <span class="tok-kw">with</span> m.<span class="tok-fn">Else</span>():
+            m.d.sync += <span class="tok-kw">self</span>.wb_ack.<span class="tok-fn">eq</span>(<span class="tok-num">0</span>)
+
+        <span class="tok-kw">return</span> m</code></pre>
+            </div>
+            <figcaption><span class="fignum">Figure 8.</span> The echo peripheral implementation in Amaranth HDL. It is a wishbone peripheral that echoes back any data written to it.</figcaption>
+          </figure>
+        </section>
+
+        <!-- ---------------- References ---------------- -->
+        <section id="references" class="refs">
+          <h2 class="plain">References</h2>
+          <ol>
+  <li id="ref-1"><span>Manar Abdelatty, Maryam Nouh, Jacob K. Rosenstein, and Sherief Reda. 2025. <span class="t">Pluto: A Benchmark for Evaluating Efficiency of LLM-generated Hardware Code</span>. arXiv. <a href="https://doi.org/10.48550/arXiv.2510.14756">10.48550/arXiv.2510.14756</a></span></li>
+  <li id="ref-2"><span>Advanced Micro Devices, Inc. 2026. <span class="t">Agentic FPGA Backend Optimization Competition @ FPL’26</span>. https://xilinx.github.io/fpl26_optimization_contest/index.html.</span></li>
+  <li id="ref-3"><span>Alon Amid et al. 2020. <span class="t">Chipyard: Integrated Design, Simulation, and Implementation Framework for Custom SoCs</span>. IEEE Micro 40(4), 10–21. <a href="https://doi.org/10.1109/MM.2020.2996616">10.1109/MM.2020.2996616</a></span></li>
+  <li id="ref-4"><span>Gordon Bell et al. 1970. <span class="t">A New Architecture for Mini-Computers—The DEC PDP-11</span>. Proceedings of the May 5–7, 1970, Spring Joint Computer Conference (AFIPS ’70), 657–675. <a href="https://doi.org/10.1145/1476936.1477037">10.1145/1476936.1477037</a></span></li>
+  <li id="ref-5"><span>Armin Biere, Alessandro Cimatti, Edmund M. Clarke, and Yunshan Zhu. 1999. <span class="t">Symbolic Model Checking without BDDs</span>. Tools and Algorithms for the Construction and Analysis of Systems (TACAS), 193–207. <a href="https://doi.org/10.1007/3-540-49059-0_14">10.1007/3-540-49059-0_14</a></span></li>
+  <li id="ref-6"><span>Armin Biere, Mathias Fleury, Nils Froleyks, and Marijn J. H. Heule. 2023. <span class="t">The SAT Museum</span>. Proceedings of the 14th International Workshop on Pragmatics of SAT (POS’23) 3545, 72–87. <a href="https://ceur-ws.org/Vol-3545/paper6.pdf">https://ceur-ws.org/Vol-3545/paper6.pdf</a></span></li>
+  <li id="ref-7"><span>Armin Biere, Marijn J. H. Heule, Hans van Maaren, and Toby Walsh. 2021. <span class="t">Handbook of Satisfiability</span>. IOS Press 336. <a href="https://doi.org/10.3233/faia336">10.3233/faia336</a></span></li>
+  <li id="ref-8"><span>Bhagath Cheela, André DeHon, Jesús Fernández-Villaverde, and Alessandro Peri. 2025. <span class="t">Programming FPGAs for Economics: An Introduction to Electrical Engineering Economics</span>. Quantitative Economics 16(1), 49–87. <a href="https://doi.org/10.3982/QE2344">10.3982/QE2344</a></span></li>
+  <li id="ref-9"><span>Zhirong Chen et al. 2026. <span class="t">ChipSeek: Optimizing Verilog Generation via EDA-Integrated Reinforcement Learning</span>. arXiv. <a href="https://doi.org/10.48550/arXiv.2507.04736">10.48550/arXiv.2507.04736</a></span></li>
+  <li id="ref-10"><span>Stephen A. Cook. 1971. <span class="t">The Complexity of Theorem-Proving Procedures</span>. Proceedings of the Third Annual ACM Symposium on Theory of Computing (STOC), 151–158. <a href="https://doi.org/10.1145/800157.805047">10.1145/800157.805047</a></span></li>
+  <li id="ref-11"><span>John L. Hennessy and David A. Patterson. 2019. <span class="t">Computer Architecture: A Quantitative Approach</span>. Morgan Kaufmann.</span></li>
+  <li id="ref-12"><span>John L. Hennessy and David A. Patterson. 2019. <span class="t">A New Golden Age for Computer Architecture</span>. Communications of the ACM 62(2), 48–60. <a href="https://doi.org/10.1145/3282307">10.1145/3282307</a></span></li>
+  <li id="ref-13"><span>Takahiro Hirofuchi, Eiji Kawai, Kazutoshi Fujikawa, and Hideki Sunahara. 2005. <span class="t">USB/IP: A Peripheral Bus Extension for Device Sharing over IP Network</span>. Proceedings of the 2005 USENIX Annual Technical Conference, FREENIX Track, 47–60. <a href="https://www.usenix.org/legacy/event/usenix05/tech/freenix/hirofuchi/hirofuchi.pdf">https://www.usenix.org/legacy/event/usenix05/tech/freenix/hirofuchi/hirofuchi.pdf</a></span></li>
+  <li id="ref-14"><span>Matti Järvisalo, Daniel Le Berre, Olivier Roussel, and Laurent Simon. 2012. <span class="t">The International SAT Solver Competitions</span>. AI Magazine 33(1), 89–94. <a href="https://doi.org/10.1609/aimag.v33i1.2395">10.1609/aimag.v33i1.2395</a></span></li>
+  <li id="ref-15"><span>Eric Jonas et al. 2019. <span class="t">Cloud Programming Simplified: A Berkeley View on Serverless Computing</span>. EECS Department, University of California, Berkeley (UCB/EECS-2019-3). <a href="https://arxiv.org/abs/1902.03383">https://arxiv.org/abs/1902.03383</a></span></li>
+  <li id="ref-16"><span>Norman P. Jouppi et al. 2017. <span class="t">In-Datacenter Performance Analysis of a Tensor Processing Unit</span>. Proceedings of the 44th Annual International Symposium on Computer Architecture (ISCA), 1–12. <a href="https://doi.org/10.1145/3079856.3080246">10.1145/3079856.3080246</a></span></li>
+  <li id="ref-17"><span>Sagar Karandikar et al. 2018. <span class="t">FireSim: FPGA-Accelerated Cycle-Exact Scale-Out System Simulation in the Public Cloud</span>. Proceedings of the 45th Annual International Symposium on Computer Architecture (ISCA), 29–42. <a href="https://doi.org/10.1109/ISCA.2018.00014">10.1109/ISCA.2018.00014</a></span></li>
+  <li id="ref-18"><span>Christian Leber, Benjamin Geib, and Heiner Litz. 2011. <span class="t">High Frequency Trading Acceleration Using FPGAs</span>. Proceedings of the 21st International Conference on Field Programmable Logic and Applications (FPL), 317–322. <a href="https://doi.org/10.1109/FPL.2011.64">10.1109/FPL.2011.64</a></span></li>
+  <li id="ref-19"><span>Bowen Li et al. 2026. <span class="t">The Missing Adapter Layer for Research Computing</span>. arXiv. <a href="https://doi.org/10.48550/arXiv.2603.23942">10.48550/arXiv.2603.23942</a></span></li>
+  <li id="ref-20"><span>Huanyu Liu et al. 2025. <span class="t">SATURN: SAT-based Reinforcement Learning to Unleash LLMs Reasoning</span>. arXiv. <a href="https://doi.org/10.48550/arXiv.2505.16368">10.48550/arXiv.2505.16368</a></span></li>
+  <li id="ref-21"><span>Michael Lo, Mau-Chung Frank Chang, and Jason Cong. 2025. <span class="t">SAT-Accel: A Modern SAT Solver on a FPGA</span>. Proceedings of the 2025 ACM/SIGDA International Symposium on Field Programmable Gate Arrays (FPGA), 234–246. <a href="https://doi.org/10.1145/3706628.3708869">10.1145/3706628.3708869</a></span></li>
+  <li id="ref-22"><span>F. Marini et al. 2026. <span class="t">FPGA-Based RoCEv2-RDMA Readout Electronics for the CTAO-LST Advanced Camera</span>. IEEE Transactions on Nuclear Science 73(2), 448–459. <a href="https://doi.org/10.1109/TNS.2025.3599615">10.1109/TNS.2025.3599615</a></span></li>
+  <li id="ref-23"><span>Jonas Markussen et al. 2021. <span class="t">SmartIO: Zero-overhead Device Sharing through PCIe Networking</span>. ACM Transactions on Computer Systems 38(1-2). <a href="https://doi.org/10.1145/3462545">10.1145/3462545</a></span></li>
+  <li id="ref-24"><span>Bruce Jay Nelson. 1981. <span class="t">Remote Procedure Call</span>. Carnegie-Mellon University. <a href="https://bitsavers.org/pdf/xerox/parc/techReports/CSL-81-9_Remote_Procedure_Call.pdf">https://bitsavers.org/pdf/xerox/parc/techReports/CSL-81-9_Remote_Procedure_Call.pdf</a></span></li>
+  <li id="ref-25"><span>Nathaniel Pinckney et al. 2025. <span class="t">Comprehensive Verilog Design Problems: A Next-Generation Benchmark Dataset for Evaluating Large Language Models and Agents on RTL Design and Verification</span>. arXiv. <a href="https://doi.org/10.48550/arXiv.2506.14074">10.48550/arXiv.2506.14074</a></span></li>
+  <li id="ref-26"><span>Andrew Putnam et al. 2016. <span class="t">A Reconfigurable Fabric for Accelerating Large-Scale Datacenter Services</span>. Communications of the ACM 59(11), 114–122. <a href="https://doi.org/10.1145/2996868">10.1145/2996868</a></span></li>
+  <li id="ref-27"><span>Sahand Salamat and Tajana Rosing. 2020. <span class="t">FPGA Acceleration of Sequence Alignment: A Survey</span>. arXiv. <a href="https://doi.org/10.48550/arXiv.2002.02394">10.48550/arXiv.2002.02394</a></span></li>
+  <li id="ref-28"><span>SAT Competition 2026 Organizers. 2026. <span class="t">SAT Competition 2026: Tracks</span>. Satellite event of the SAT Conference 2026. <a href="https://satcompetition.github.io/2026/tracks.html">https://satcompetition.github.io/2026/tracks.html</a></span></li>
+  <li id="ref-29"><span>David Shah et al. 2019. <span class="t">Yosys+nextpnr: An Open Source Framework from Verilog to Bitstream for Commercial FPGAs</span>. Proceedings of the IEEE 27th Annual International Symposium on Field-Programmable Custom Computing Machines (FCCM), 1–4. <a href="https://doi.org/10.1109/FCCM.2019.00010">10.1109/FCCM.2019.00010</a></span></li>
+  <li id="ref-30"><span>David E. Shaw et al. 2021. <span class="t">Anton 3: Twenty Microseconds of Molecular Dynamics Simulation Before Lunch</span>. Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis (SC), 1–11. <a href="https://doi.org/10.1145/3458817.3487397">10.1145/3458817.3487397</a></span></li>
+  <li id="ref-31"><span>Iouliia Skliarova and António de Brito Ferrari. 2004. <span class="t">Reconfigurable Hardware SAT Solvers: A Survey of Systems</span>. IEEE Transactions on Computers 53(11), 1449–1461. <a href="https://doi.org/10.1109/TC.2004.102">10.1109/TC.2004.102</a></span></li>
+  <li id="ref-32"><span>Atefeh Sohrabizadeh, Cody Hao Yu, Min Gao, and Jason Cong. 2022. <span class="t">AutoDSE: Enabling Software Programmers to Design Efficient FPGA Accelerators</span>. ACM Transactions on Design Automation of Electronic Systems 27(4), 1–27. <a href="https://doi.org/10.1145/3494534">10.1145/3494534</a></span></li>
+  <li id="ref-33"><span>Yue Tao and Shaowei Cai. 2025. <span class="t">VeriSAT: The Hardware Design of Modern SAT Solver</span>. Proceedings of the IEEE/ACM International Conference on Computer-Aided Design (ICCAD), 1–9. <a href="https://doi.org/10.1109/ICCAD66269.2025.11240752">10.1109/ICCAD66269.2025.11240752</a></span></li>
+  <li id="ref-34"><span>Chris Tozzi. 2025. <span class="t">The Growing Role of FPGAs for Accelerating AI Workloads</span>. TechTarget. <a href="https://www.techtarget.com/ai/tip/The-growing-role-of-FPGAs-for-accelerating-AI-workloads">https://www.techtarget.com/ai/tip/The-growing-role-of-FPGAs-for-accelerating-AI-workloads</a></span></li>
+  <li id="ref-35"><span>UDO Audio. 2020. <span class="t">Super 6: Binaural Polyphonic Synthesizer</span>. Product documentation. <a href="https://www.udo-audio.com/super-6">https://www.udo-audio.com/super-6</a></span></li>
+  <li id="ref-36"><span>Jing Xiao et al. 2026. <span class="t">Molecular Dynamics Simulations Accelerated on FPGA with High-Bandwidth Memory</span>. Digital Discovery 5(2), 844–861. <a href="https://doi.org/10.1039/D5DD00391A">10.1039/D5DD00391A</a></span></li>
+  <li id="ref-37"><span>Peixin Zhong, Margaret Martonosi, Pranav Ashar, and Sharad Malik. 1998. <span class="t">Accelerating Boolean Satisfiability with Configurable Hardware</span>. Proceedings of the IEEE Symposium on FPGAs for Custom Computing Machines (FCCM), 186–195. <a href="https://doi.org/10.1109/FPGA.1998.707896">10.1109/FPGA.1998.707896</a></span></li>
+          </ol>
+        </section>
+
+        <div class="paper-foot">
+          Formal Methods and Reasoning Group, Columbia University &middot; Barnard College
+        </div>
+
+      </article>
+    </div>
+  </main>
+
+  <!-- ================= footer ================= -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <img src="assets/favicon.svg" alt="Manhattan Reasoning turnstile mark" />
+        <span>&copy; 2026 Manhattan Reasoning</span>
+      </div>
+      <nav class="footer-links">
+        <a href="https://github.com/ManhattanReasoning">GitHub</a>
+        <a href="https://docs.manhattanreasoning.com">Docs</a>
+        <a href="careers.html">Careers</a>
+        <a href="mailto:hello@manhattanreasoning.com">hello@manhattanreasoning.com</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- lightbox: figures here are dense enough that reading them needs a zoom -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged figure">
+    <button class="lightbox-close" type="button" aria-label="Close">&times;</button>
+    <img id="lightbox-img" src="" alt="" />
+  </div>
+
+  <!-- js/main.js is the site script: nav collapse, mobile menu, copy buttons -->
+  <script src="js/main.js" defer></script>
+  <script src="js/research.js" defer></script>
+</body>
+</html>

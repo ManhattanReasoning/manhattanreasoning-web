@@ -1,7 +1,7 @@
 # manhattanreasoning.com — site v2
 
-Static, no-build single-page site. Off-white, Helvetica, scrolling sections
-(per `instructions/instructions.md`).
+Static, no-build site: `index.html` (the scrolling landing page), `research.html`
+and `careers.html`. Off-white, Helvetica (per `instructions/instructions.md`).
 
 ## Run locally
 
@@ -27,6 +27,22 @@ python3 -m http.server 8000
   (`mrg.RegisterMap`, `mrg.cloud.App`, `mrg.Sandbox`).
 - **Terminal** — replays a real `mrg run` session, including
   "warming up the flip-flops…".
+
+## The research page
+
+`research.html` is the Fall 2026 research vision paper, set for the web. It
+carries no design system of its own — it links `css/style.css` and `js/main.js`
+like every other page, and adds only `css/research.css` (reading column, section
+rail, figure plates) and `js/research.js` (rail scroll-spy, reading progress,
+figure zoom).
+
+The figures in `assets/figures/` are vector exports of the paper's TikZ/pgfplots
+sources, and `assets/manhattan-reasoning-research-vision.pdf` is the built PDF
+the hero links to. Both are generated from the paper's LaTeX repo, not edited
+here — regenerate them there and copy the results across.
+
+Careers moved out of the nav to make room for it. `careers.html` is unchanged
+and still linked from the footer on `index.html`.
 
 ## Before going live
 

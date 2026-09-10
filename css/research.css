@@ -1,0 +1,362 @@
+/* Manhattan Reasoning — research vision
+   Layers on css/style.css and inherits every brand token from its :root.
+
+   One column of text with a section rail beside it. The column is the reading
+   measure, and the hero, the prose, the figures and the captions all share its
+   two edges. Nothing else: this is a paper, and the job is to read it. */
+
+:root {
+  --measure: 80ch;          /* body copy line length */
+  --read-gap: clamp(28px, 5vw, 64px);
+  /* the hero and the reading block share one left edge and one right edge */
+  --read-w: calc(var(--rail-w) + var(--read-gap) + var(--measure) + 48px);
+  --plate: #ffffff;
+  --rail-w: 172px;
+}
+
+/* ---------------- hero: a journal front page -----------------------------
+   Title, byline and route in the left column; the paper's own abstract in the
+   right, ruled off in the brand blue. */
+
+.paper-hero {
+  padding: 152px 0 76px;
+  border-bottom: 1px solid var(--line);
+}
+.paper-hero .container {
+  max-width: var(--read-w);
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(28px, 3.6vw, 52px);
+  align-items: start;
+}
+.paper-hero .eyebrow {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--ink-3);
+  letter-spacing: 0.02em;
+}
+.paper-hero h1 {
+  margin-top: 14px;
+  font-size: clamp(1.9rem, 3.3vw, 2.65rem);
+  line-height: 1.08;
+  letter-spacing: -0.024em;
+  font-weight: 700;
+  text-wrap: balance;
+}
+.paper-hero .subtitle {
+  margin-top: 18px;
+  font-size: clamp(1rem, 1.3vw, 1.12rem);
+  line-height: 1.52;
+  color: var(--ink-2);
+}
+.byline { margin-top: 30px; display: grid; gap: 3px; }
+.byline .names { font-size: 0.98rem; font-weight: 600; color: var(--ink); }
+.byline .affils { font-size: 0.87rem; color: var(--ink-3); line-height: 1.5; }
+.hero-actions { margin-top: 26px; display: flex; gap: 12px; flex-wrap: wrap; }
+
+.hero-abstract {
+  border-left: 2px solid var(--accent);
+  padding: 4px 0 4px 24px;
+  scroll-margin-top: 88px;
+  align-self: end;
+}
+.hero-abstract p { font-size: 0.99rem; line-height: 1.66; color: var(--ink-2); }
+.hero-abstract p + p { margin-top: 16px; }
+
+/* ---------------- reading layout ----------------------------------------- */
+
+.read {
+  max-width: var(--read-w);
+  margin: 0 auto;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: var(--rail-w) minmax(0, var(--measure));
+  gap: var(--read-gap);
+  justify-content: center;
+  align-items: start;
+}
+
+/* section rail — where you are in the argument */
+.rail {
+  position: sticky;
+  top: 96px;
+  padding: 74px 0 0;
+  font-size: 0.85rem;
+}
+.rail ol { list-style: none; display: grid; gap: 2px; }
+.rail a {
+  display: grid;
+  grid-template-columns: 1.7em minmax(0, 1fr);
+  padding: 5px 0 5px 10px;
+  color: var(--ink-3);
+  border-left: 2px solid var(--line);
+  line-height: 1.35;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.rail a .n { font-family: var(--mono); font-size: 0.78rem; }
+.rail a:hover { color: var(--ink-2); text-decoration: none; }
+.rail a.current { color: var(--ink); border-left-color: var(--accent); font-weight: 600; }
+.rail a.sub { grid-template-columns: 2.5em minmax(0, 1fr); font-size: 0.8rem; }
+
+/* ---------------- prose ---------------------------------------------------- */
+
+.prose { padding: 74px 0 0; min-width: 0; }
+
+.prose section { scroll-margin-top: 88px; }
+.prose section + section { margin-top: 72px; }
+.prose [id] { scroll-margin-top: 88px; }
+
+.prose h2 {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.5em;
+  align-items: baseline;
+  font-size: clamp(1.55rem, 2.6vw, 2.05rem);
+  line-height: 1.15;
+  letter-spacing: -0.018em;
+  font-weight: 700;
+}
+.prose h2.plain { display: block; }
+.prose h2 .num {
+  font-family: var(--mono);
+  font-size: 0.6em;
+  font-weight: 500;
+  color: var(--accent-ink);
+}
+.prose h3 {
+  margin-top: 50px;
+  font-size: 1.18rem;
+  font-weight: 700;
+  letter-spacing: -0.008em;
+}
+.prose h4 {
+  margin-top: 34px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.prose p {
+  margin-top: 18px;
+  font-size: 1.09rem;
+  line-height: 1.75;
+  color: #24262c;
+}
+.prose h2 + p, .prose h3 + p, .prose h4 + p { margin-top: 14px; }
+.prose strong { font-weight: 600; color: var(--ink); }
+.prose a { color: var(--accent-ink); }
+.prose a.btn { color: #fff; }
+.prose a.btn.ghost { color: var(--ink); }
+.prose code { font-family: var(--mono); font-size: 0.88em; color: var(--ink-2); }
+.prose img, .prose pre, .prose table { max-width: 100%; }
+
+/* contribution and research-question lists */
+.prose ul.points { margin-top: 24px; display: grid; gap: 16px; list-style: none; }
+.prose ul.points > li {
+  position: relative;
+  padding-left: 22px;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+.prose ul.points > li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0.72em;
+  width: 10px; height: 1.5px;
+  background: var(--accent);
+}
+.prose ul.points > li b { color: var(--ink); font-weight: 600; }
+
+/* block quotation — Nelson on transparency */
+.prose blockquote {
+  margin: 30px 0 0;
+  padding-left: 22px;
+  border-left: 2px solid var(--line);
+}
+.prose blockquote p { font-size: 1.09rem; line-height: 1.7; color: var(--ink-2); }
+.prose blockquote cite {
+  display: block;
+  margin-top: 10px;
+  font-style: normal;
+  font-size: 0.84rem;
+  color: var(--ink-3);
+}
+
+/* inline citation markers */
+.cite {
+  font-size: 0.76em;
+  font-weight: 600;
+  vertical-align: 0.32em;
+  line-height: 0;
+  color: var(--accent-ink);
+  white-space: nowrap;
+}
+.cite a { color: inherit; }
+
+/* ---------------- figure plates ------------------------------------------ */
+
+.plate { margin: 44px 0 0; }
+.plate-body {
+  position: relative;
+  background: var(--plate);
+  border: 1px solid #eceae2;
+  border-radius: 12px;
+  padding: 20px 22px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(20, 24, 40, 0.04),
+              0 12px 32px -18px rgba(20, 24, 40, 0.14);
+}
+.plate-body img { display: block; width: 100%; height: auto; }
+.plate figcaption {
+  margin-top: 14px;
+  font-size: 0.88rem;
+  line-height: 1.62;
+  color: var(--ink-2);
+}
+.plate figcaption .fignum { font-weight: 700; color: var(--ink); }
+
+.plate.zoomable .plate-body { cursor: zoom-in; }
+.plate.zoomable .plate-body:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.zoom-hint {
+  position: absolute;
+  top: 10px; right: 12px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--ink-3);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 2px 7px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+.plate.zoomable .plate-body:hover .zoom-hint,
+.plate.zoomable .plate-body:focus-visible .zoom-hint { opacity: 1; }
+@media (hover: none) { .zoom-hint { opacity: 1; } }
+
+.plate .code-card { border-radius: 12px; }
+.plate .code-card pre { font-size: 0.8rem; line-height: 1.66; }
+
+/* ---------------- references ---------------------------------------------- */
+
+.refs { margin-top: 72px; }
+.refs ol {
+  margin-top: 24px;
+  list-style: none;
+  counter-reset: ref;
+  display: grid;
+  gap: 12px;
+}
+.refs li {
+  counter-increment: ref;
+  display: grid;
+  grid-template-columns: 2.6em minmax(0, 1fr);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--ink-2);
+  scroll-margin-top: 96px;
+}
+.refs li::before {
+  content: "[" counter(ref) "]";
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--ink-3);
+  padding-top: 0.16em;
+}
+.refs li .t { color: var(--ink); }
+.refs li a { overflow-wrap: anywhere; }
+.refs li:target { background: rgba(0, 114, 255, 0.07); border-radius: 6px; }
+.refs li:target::before { color: var(--accent-ink); }
+
+/* closing call, then the paper's own footer strip */
+.paper-close { margin-top: 44px; }
+.paper-close .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.paper-foot {
+  margin-top: 72px;
+  padding: 26px 0 8px;
+  border-top: 1px solid var(--line);
+  max-width: none;
+  font-size: 0.88rem;
+  color: var(--ink-3);
+}
+
+/* ---------------- reading progress ---------------------------------------- */
+
+.progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  width: 0;
+  background: var(--accent);
+  z-index: 60;
+}
+
+/* ---------------- lightbox -------------------------------------------------- */
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(23, 24, 28, 0.85);
+  display: none;
+  padding: 24px;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.lightbox.open { display: block; }
+.lightbox img {
+  display: block;
+  width: 100%;
+  max-width: 1600px;
+  height: auto;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+}
+.lightbox-close {
+  position: fixed;
+  top: 18px; right: 20px;
+  width: 40px; height: 40px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.lightbox-close:hover { background: rgba(255, 255, 255, 0.2); }
+
+/* ---------------- responsive -------------------------------------------------- */
+
+@media (max-width: 1040px) {
+  .paper-hero { padding: 120px 0 56px; }
+  .paper-hero .container { grid-template-columns: minmax(0, 1fr); }
+  .hero-abstract { margin-top: 34px; align-self: start; }
+  .read { grid-template-columns: minmax(0, 1fr); gap: 0; justify-content: stretch; }
+  .rail {
+    position: static;
+    padding: 40px 0 26px;
+    border-bottom: 1px solid var(--line);
+  }
+  .rail a.sub { display: none; }
+  .prose { padding-top: 44px; }
+  .prose section + section { margin-top: 56px; }
+}
+
+@media (max-width: 640px) {
+  .read { padding: 0 16px; }
+  .paper-hero .container { padding: 0 16px; }
+  .prose p { font-size: 1.01rem; line-height: 1.7; }
+  .hero-abstract { padding-left: 18px; }
+  .hero-abstract p { font-size: 0.99rem; }
+  .plate { margin-top: 32px; }
+  .plate-body { padding: 14px; border-radius: 10px; }
+  .refs li { grid-template-columns: 2.2em minmax(0, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rail a, .zoom-hint { transition: none; }
+}
