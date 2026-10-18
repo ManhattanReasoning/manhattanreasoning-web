@@ -174,35 +174,62 @@
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const status = form.querySelector(".form-status");
-      const action = form.getAttribute("action");
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const action =
+        form.getAttribute("action") ||
+        "https://api.manhattanreasoning.com/api/beta/apply";
 
-      // Until a Formspree ID is configured, fall back to a pre-filled email.
-      if (action.includes("YOUR_FORM_ID")) {
-        const d = new FormData(form);
-        const body = encodeURIComponent(
-          `Name: ${d.get("name")}\nEmail: ${d.get("email")}\n` +
-          `Affiliation: ${d.get("affiliation")}\n\nWhat I want to build:\n${d.get("building")}`
-        );
-        location.href =
-          `mailto:hello@manhattanreasoning.com?subject=${encodeURIComponent("Beta access request")}&body=${body}`;
+      const formData = new FormData(form);
+      const payload = {
+        github_username: (formData.get("github_username") || "").trim(),
+        email: (formData.get("email") || "").trim(),
+        full_name: (formData.get("full_name") || "").trim() || null,
+        affiliation: (formData.get("affiliation") || "").trim() || null,
+        intended_use: (formData.get("intended_use") || "").trim() || null,
+      };
+
+      if (!payload.github_username) {
+        status.textContent = "Please provide your GitHub username.";
+        status.className = "form-status err";
         return;
       }
 
-      status.textContent = "Sending…";
+      status.textContent = "Submitting…";
       status.className = "form-status";
+      if (submitBtn) submitBtn.disabled = true;
+
       try {
         const res = await fetch(action, {
           method: "POST",
-          body: new FormData(form),
-          headers: { Accept: "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify(payload),
         });
-        if (!res.ok) throw new Error();
-        form.reset();
-        status.textContent = "Thanks — we'll be in touch soon.";
-        status.className = "form-status ok";
+
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok) {
+          form.reset();
+          status.textContent =
+            data.message ||
+            "Application received! We'll review your application shortly.";
+          status.className = "form-status ok";
+        } else {
+          const errMsg =
+            data.detail?.message ||
+            data.message ||
+            "Failed to submit application. Please check your details.";
+          status.textContent = errMsg;
+          status.className = "form-status err";
+        }
       } catch {
-        status.textContent = "Something went wrong — email hello@manhattanreasoning.com instead.";
+        status.textContent =
+          "Unable to connect to server — email hello@manhattanreasoning.com instead.";
         status.className = "form-status err";
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
       }
     });
   }
