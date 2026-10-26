@@ -154,24 +154,28 @@ result = sandbox.run(<span class="tok-str">"agent.py"</span>)  <span class="tok-
             a little about what you want to run on it.</p>
           <!-- Create a form at https://formspree.io and replace YOUR_FORM_ID.
                Until then, submissions fall back to a pre-filled email. -->
-          <form id="beta-form" action="https://formspree.io/f/xaqglpwb" method="POST">
+          <form id="beta-form" action="https://api.manhattanreasoning.com/api/beta/apply" method="POST">
             <div class="form-grid">
               <div class="field">
-                <label for="f-name">Name</label>
-                <input id="f-name" name="name" type="text" required autocomplete="name" />
+                <label for="f-name">Full Name</label>
+                <input id="f-name" name="full_name" type="text" autocomplete="name" />
               </div>
               <div class="field">
-                <label for="f-email">Email</label>
+                <label for="f-github">GitHub Handle <span style="font-weight:600; color:var(--accent)">*</span></label>
+                <input id="f-github" name="github_username" type="text" required placeholder="@username" autocomplete="username" />
+              </div>
+              <div class="field">
+                <label for="f-email">Email <span style="font-weight:600; color:var(--accent)">*</span></label>
                 <input id="f-email" name="email" type="email" required autocomplete="email" />
               </div>
-              <div class="field full">
+              <div class="field">
                 <label for="f-aff">Affiliation <span style="font-weight:400">(optional)</span></label>
                 <input id="f-aff" name="affiliation" type="text" placeholder="university, company, independent…" />
               </div>
               <div class="field full">
                 <label for="f-build">What will you build?</label>
-                <textarea id="f-build" name="building" required
-                  placeholder="an accelerator, an RL agent that closes timing, a course lab…"></textarea>
+                <textarea id="f-build" name="intended_use"
+                  placeholder="an accelerator, a systolic array, an RL agent that closes timing, a course lab…"></textarea>
               </div>
             </div>
             <div class="form-foot">
