@@ -1,7 +1,9 @@
 # manhattanreasoning.com — site v2
 
-Static, no-build site: `index.html` (the scrolling landing page), `research.html`
-and `careers.html`. Off-white, Helvetica (per `instructions/instructions.md`).
+Static, no-build site: `index.html` (the scrolling landing page) and
+`research.html`. Off-white, Helvetica (per `instructions/instructions.md`).
+`careers.html` is only a redirect stub to the homepage, kept so old links and
+printed QR codes still resolve.
 
 ## Run locally
 
@@ -40,10 +42,6 @@ The figures in `assets/figures/` are vector exports of the paper's TikZ/pgfplots
 sources, and `assets/manhattan-reasoning-research-vision.pdf` is the built PDF
 the hero links to. Both are generated from the paper's LaTeX repo, not edited
 here — regenerate them there and copy the results across.
-
-Careers came out of the nav and the footer to make room for it. `careers.html`
-is unchanged and still served at `/careers.html` — the printed QR flier in
-`print/` points there — but nothing on the site links to it.
 
 ## Before going live
 

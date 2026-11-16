@@ -551,28 +551,11 @@ a:hover { text-decoration: underline; }
   .nav-links a:hover { background: rgba(0, 114, 255, 0.08); }
   .section { padding: 56px 0; }
 
-  body:not(.careers-page) main#top .hero {
+  main#top .hero {
     justify-content: flex-start;
   }
-  body:not(.careers-page) main#top .hero .container {
+  main#top .hero .container {
     padding-top: clamp(36px, 9vh, 84px);
-  }
-
-  body.careers-page {
-    min-height: 100svh;
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-  }
-  body.careers-page main#top {
-    flex: 1;
-    display: flex;
-  }
-  body.careers-page main#top .hero {
-    flex: 1;
-    min-height: 100%;
-    width: 100%;
-    padding-bottom: 36px;
   }
 }
 
