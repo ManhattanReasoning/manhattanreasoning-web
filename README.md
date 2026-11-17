@@ -43,6 +43,23 @@ sources, and `assets/manhattan-reasoning-research-vision.pdf` is the built PDF
 the hero links to. Both are generated from the paper's LaTeX repo, not edited
 here — regenerate them there and copy the results across.
 
+## Membership pages
+
+Three small pages where Stripe sends the browser at the end of a membership
+step. The API server chooses them through its `BILLING_*_URL` settings; nothing
+on this site links to them, and they carry `noindex`.
+
+| Page | Reached after | Server setting |
+| --- | --- | --- |
+| `membership-success.html` | paying in Stripe Checkout | `BILLING_SUCCESS_URL` |
+| `membership-cancelled.html` | leaving Checkout without paying | `BILLING_CANCEL_URL` |
+| `membership-billing.html` | leaving the Stripe billing portal | `BILLING_PORTAL_RETURN_URL` |
+
+They are static: they cannot tell who the visitor is or whether the payment
+went through, so the copy only says what to do next in the terminal. None of
+them states a price. They share `css/style.css` (the `.notice` rules) and
+`js/main.js`, like every other page.
+
 ## Before going live
 
 1. **Beta form**: create a form at [formspree.io](https://formspree.io), then
