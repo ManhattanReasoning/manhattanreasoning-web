@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Back from billing — Manhattan Reasoning</title>
+  <!-- a landing page for one step of the membership flow, not content: keep it out of search -->
+  <meta name="robots" content="noindex" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ================= nav ================= -->
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="index.html#top" aria-label="Manhattan Reasoning">
+        <span class="logo" aria-hidden="true">
+          <span class="logo-l1">Manhattan <span class="op">&rarr;</span> Reasoning,</span>
+          <span class="logo-l2">Manhattan <span class="op">&#8866;</span> Reasoning</span>
+        </span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="nav-links" id="site-nav">
+        <a href="index.html#cloud">Cloud</a>
+        <a href="index.html#sandbox">Sandbox</a>
+        <a href="https://docs.manhattanreasoning.com">Docs</a>
+        <a href="research.html">Research</a>
+        <a href="index.html#beta">Beta Access</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ================= notice ================= -->
+  <main class="notice">
+    <section class="section">
+      <div class="container beta-wrap">
+        <p class="kicker">Membership</p>
+        <h1>Back from billing.</h1>
+        <p class="lede">Anything you changed in the billing portal is saved with Stripe and reaches your account within a few seconds. You can close this tab and go back to your terminal.</p>
+
+        <div class="code-card beta-install">
+          <div class="code-head"><span class="fname">terminal</span><button class="copy-btn" type="button">Copy</button></div>
+          <pre><code><span class="term-dim">$</span> mrg usage
+<span class="term-dim">$</span> mrg billing</code></pre>
+        </div>
+
+        <p class="notice-foot"><code>mrg billing</code> opens the portal again. If something looks wrong with your membership, write to <a href="mailto:hello@manhattanreasoning.com">hello@manhattanreasoning.com</a>.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= footer ================= -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <img src="assets/favicon.svg" alt="Manhattan Reasoning turnstile mark" />
+        <span>&copy; 2026 Manhattan Reasoning</span>
+      </div>
+      <nav class="footer-links">
+        <a href="https://github.com/ManhattanReasoning">GitHub</a>
+        <a href="https://docs.manhattanreasoning.com">Docs</a>
+        <a href="mailto:hello@manhattanreasoning.com">hello@manhattanreasoning.com</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- js/main.js is the site script: nav collapse, mobile menu, copy buttons -->
+  <script src="js/main.js" defer></script>
+</body>
+</html>
