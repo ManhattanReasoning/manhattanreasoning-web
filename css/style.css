@@ -106,6 +106,20 @@ a:hover { text-decoration: underline; }
 }
 .nav.scrolled .nav-links a { text-shadow: none; }
 .nav-links a:hover { color: var(--accent-ink); text-decoration: none; }
+/* account actions sit apart from the page links: a hairline divider before
+   "Sign in", then the beta call to action as the one filled button */
+.nav-links .nav-signin {
+  margin-left: 4px;
+  padding-left: 28px;
+  border-left: 1px solid var(--line);
+}
+.nav-links .nav-cta {
+  color: #fff;
+  padding: 7px 16px;
+  font-size: 0.9rem;
+  text-shadow: none;
+}
+.nav-links .nav-cta:hover { color: #fff; }
 
 .nav-toggle {
   display: none;
@@ -549,6 +563,21 @@ a:hover { text-decoration: underline; }
     text-shadow: none;
   }
   .nav-links a:hover { background: rgba(0, 114, 255, 0.08); }
+  .nav-links .nav-signin {
+    margin: 6px 0 0;
+    padding-left: 12px;
+    border-left: none;
+    border-top: 1px solid var(--line);
+    border-radius: 0 0 8px 8px;
+    padding-top: 14px;
+  }
+  .nav-links .nav-cta {
+    margin-top: 4px;
+    padding: 10px 12px;
+    text-align: center;
+    border-radius: 999px;
+  }
+  .nav-links .nav-cta:hover { background: var(--accent-ink); }
   .section { padding: 56px 0; }
 
   main#top .hero {
