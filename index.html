@@ -40,10 +40,6 @@
           <a class="nav-signin" href="https://app.manhattanreasoning.com">Sign in</a>
           <a class="btn nav-cta" href="#beta">Beta access</a>
         </div>
-        <p class="nav-status" data-live-status hidden>
-          <span class="status-dot" aria-hidden="true"></span>
-          <span data-live-status-text></span>
-        </p>
       </nav>
     </div>
   </header>
@@ -80,23 +76,24 @@
       <div class="container">
         <h2 id="boards-h">Boards you can reach from anywhere</h2>
         <p class="lede">
-          Each board is a Lattice ECP5-85F running our base SoC. When you run a
-          design, it builds in the cloud, takes a free board, and hands it back
-          when you are done. This is the rack right now.
+          Each board is a Lattice ECP5-85F running our base SoC. Your design
+          builds in the cloud first; a board is only taken once the bitstream
+          is ready, and it is wiped before anyone else gets it.
         </p>
 
-        <div class="rack" data-rack>
-          <p class="rack-summary" data-rack-summary aria-live="polite">Checking the boards&hellip;</p>
-          <ol class="rack-grid" data-rack-grid aria-label="Boards"></ol>
-          <div class="rack-foot">
-            <ul class="rack-legend" aria-label="Board states">
-              <li><span class="led is-free" aria-hidden="true"></span>Free</li>
-              <li><span class="led is-busy" aria-hidden="true"></span>In use</li>
-              <li><span class="led is-flashing" aria-hidden="true"></span>Flashing</li>
-              <li><span class="led is-off" aria-hidden="true"></span>Unavailable</li>
-            </ul>
-            <p class="rack-time" data-rack-time></p>
+        <div class="lifecycle" data-lifecycle>
+          <div class="board-figure" aria-hidden="true">
+            <span class="led"></span>
+            <span class="chip"></span>
+            <span class="board-label">ECP5-85F</span>
           </div>
+          <ol class="life-steps">
+            <li data-state="is-free"><b>Free</b><span>Waiting with the base SoC loaded.</span></li>
+            <li data-state="is-flashing"><b>Flashing</b><span>Your bitstream goes on.</span></li>
+            <li data-state="is-busy"><b>Running</b><span>Your Python reads and writes its registers.</span></li>
+            <li data-state="is-flashing"><b>Wiped</b><span>A clear image goes on when you exit.</span></li>
+            <li data-state="is-free"><b>Free again</b><span>Ready for the next design.</span></li>
+          </ol>
         </div>
       </div>
     </section>
@@ -164,7 +161,7 @@
           <dl class="commands">
             <div><dt><code>mrg login</code></dt><dd>Sign in with GitHub and store an API key.</dd></div>
             <div><dt><code>mrg run design.py</code></dt><dd>Build, flash a free board, and run your entrypoint.</dd></div>
-            <div><dt><code>mrg status</code></dt><dd>See which boards are free.</dd></div>
+            <div><dt><code>mrg status</code></dt><dd>Check whether a board is free right now.</dd></div>
             <div><dt><code>mrg jobs</code>, <code>mrg logs</code></dt><dd>Your recent builds and their logs.</dd></div>
             <div><dt><code>mrg cancel</code></dt><dd>Stop a build.</dd></div>
             <div><dt><code>mrg synth</code>, <code>mrg pnr</code></dt><dd>Resource and timing reports on your own machine, no board needed.</dd></div>
@@ -234,9 +231,7 @@ result = sandbox.run(<span class="tok-str">"agent.py"</span>)  <span class="tok-
           Prof. Mark Santolucito.
         </p>
         <p class="research-links">
-          <a href="research.html">Read the research vision</a>
-          <a href="assets/manhattan-reasoning-research-vision.pdf">Download the PDF</a>
-        </p>
+          <a href="research.html">Read the research vision</a>        </p>
       </div>
     </section>
 

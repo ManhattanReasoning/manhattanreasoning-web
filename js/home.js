@@ -1,89 +1,33 @@
-/* Home page: live board rack and status line, the build pipeline reveal, the
-   terminal replay, and the sidebar's current-section marker.
+/* Home page: the board lifecycle, the build pipeline reveal, the terminal
+   replay, and the sidebar's current-section marker.
 
-   Board data comes from the public GET /fpga route (no sign-in). Only the
-   board id and its state are used; nothing about who holds a board is shown.
-   If the API can't be reached, the rack says so and draws nothing: no
-   numbers are ever made up. */
+   This page makes no API calls (the beta form in main.js is the only one).
+   Nothing here states or implies how many boards there are. */
 (function () {
   "use strict";
 
-  const API = "https://api.manhattanreasoning.com";
-  const REFRESH_MS = 30000;
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* ---- board states, in the words a visitor would use ---- */
-  const STATES = {
-    idle: { cls: "is-free", word: "Free" },
-    reserved: { cls: "is-busy", word: "In use" },
-    running: { cls: "is-busy", word: "In use" },
-    programming: { cls: "is-flashing", word: "Flashing" },
-  };
-  const describe = (state) => STATES[state] || { cls: "is-off", word: "Unavailable" };
-
-  const grid = document.querySelector("[data-rack-grid]");
-  const summary = document.querySelector("[data-rack-summary]");
-  const stamp = document.querySelector("[data-rack-time]");
-  const status = document.querySelector("[data-live-status]");
-  const statusText = document.querySelector("[data-live-status-text]");
-
-  let boards = null;            // last good board list, for the terminal
-  const onBoards = [];
-
-  function renderRack(list) {
-    if (!grid) return;
-    grid.innerHTML = "";
-    list.forEach((b) => {
-      const d = describe(b.state);
-      const li = document.createElement("li");
-      li.className = `board ${d.cls}`;
-      li.innerHTML =
-        `<span class="led ${d.cls}" aria-hidden="true"></span>` +
-        `<span class="chip" aria-hidden="true"></span>` +
-        `<span class="board-id">fpga${Number(b.fpga_id)}</span>` +
-        `<span class="board-state">${d.word}</span>`;
-      grid.appendChild(li);
-    });
-    const free = list.filter((b) => b.state === "idle").length;
-    summary.innerHTML =
-      `${free} of ${list.length} boards free right now` +
-      ` <span class="muted">(live)</span>`;
-    const t = new Date();
-    stamp.textContent = `Updated ${t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
-    if (status) {
-      status.hidden = false;
-      status.classList.remove("is-down");
-      statusText.textContent = `${free} of ${list.length} boards free`;
+  /* ---- one board, stepping through its lifecycle while in view ---- */
+  const life = document.querySelector("[data-lifecycle]");
+  if (life) {
+    const fig = life.querySelector(".board-figure");
+    const steps = Array.from(life.querySelectorAll(".life-steps li"));
+    let i = 0, timer = null;
+    const show = (n) => {
+      steps.forEach((li, k) => li.classList.toggle("current", k === n));
+      fig.className = "board-figure " + steps[n].dataset.state;
+    };
+    show(0);
+    if (!reduceMotion) {
+      new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !timer) {
+          timer = setInterval(() => { i = (i + 1) % steps.length; show(i); }, 1800);
+        } else if (!entries[0].isIntersecting && timer) {
+          clearInterval(timer); timer = null;
+        }
+      }, { threshold: 0.3 }).observe(life);
     }
-  }
-
-  function renderUnavailable() {
-    if (grid && !boards) grid.innerHTML = "";
-    if (summary && !boards) summary.textContent = "Live board status is unavailable right now.";
-    if (stamp && !boards) stamp.textContent = "";
-    if (status) status.hidden = true;
-  }
-
-  async function refresh() {
-    try {
-      const res = await fetch(`${API}/fpga`, { credentials: "omit", cache: "no-store" });
-      if (!res.ok) throw new Error(String(res.status));
-      const list = await res.json();
-      if (!Array.isArray(list)) throw new Error("unexpected shape");
-      list.sort((a, b) => a.fpga_id - b.fpga_id);
-      boards = list.map((b) => ({ fpga_id: b.fpga_id, state: String(b.state) }));
-      renderRack(boards);
-      onBoards.splice(0).forEach((fn) => fn(boards));
-    } catch {
-      renderUnavailable();
-    }
-  }
-
-  if (grid || status) {
-    refresh();
-    // refresh only while the tab is visible
-    setInterval(() => { if (!document.hidden) refresh(); }, REFRESH_MS);
-    document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
   }
 
   /* ---- build pipeline: light the wire once, when it comes into view ---- */
@@ -104,27 +48,14 @@
     const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
     const prompt = '<span class="term-dim">$</span> ';
 
-    function script(list) {
-      const free = list && list.find((b) => b.state === "idle");
-      const fpga = free ? `fpga${free.fpga_id}` : "fpga0";
-      const lines = [
-        { cmd: "pip install manhattan-reasoning-gym" },
-        { cmd: "mrg login" },
-        { cmd: "mrg run client_sdk.py" },
-        { out: '<span class="term-dim">[mrg] queued...</span>' },
-        { out: '<span class="term-dim">[mrg] building bitstream...</span>' },
-        { out: `<span class="term-dim">[mrg] flashing ${fpga}...</span>` },
-        { cmd: "mrg status" },
-      ];
-      if (list && list.length) {
-        lines.push({ out: '<span class="term-head">  ID  STATE</span>' });
-        list.forEach((b) => {
-          lines.push({ out: `  ${String(b.fpga_id).padStart(2)}  ${esc(b.state)}` });
-        });
-        lines.push({ out: '<span class="term-dim">  (owner and timing columns trimmed)</span>' });
-      }
-      return lines;
-    }
+    const lines = [
+      { cmd: "pip install manhattan-reasoning-gym" },
+      { cmd: "mrg login" },
+      { cmd: "mrg run client_sdk.py" },
+      { out: '<span class="term-dim">[mrg] queued...</span>' },
+      { out: '<span class="term-dim">[mrg] building bitstream...</span>' },
+      { out: '<span class="term-dim">[mrg] flashing the board...</span>' },
+    ];
 
     function finalHtml(lines) {
       return lines
@@ -157,19 +88,13 @@
       }, 55);
     }
 
-    // wait until the terminal is in view, and for the board list if it's coming
+    // type it once, when the terminal comes into view
+    term.innerHTML = finalHtml(lines);
     new IntersectionObserver((entries, obs) => {
       if (!entries[0].isIntersecting) return;
       obs.disconnect();
-      if (boards) play(script(boards));
-      else {
-        let started = false;
-        const go = (list) => { if (!started) { started = true; play(script(list)); } };
-        onBoards.push(go);
-        setTimeout(() => go(boards), 1500);   // API slow or down: play without the table
-      }
+      play(lines);
     }, { threshold: 0.4 }).observe(term);
-    term.innerHTML = finalHtml(script(null));
   }
 
   /* ---- sidebar: mark the section in view ---- */

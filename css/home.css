@@ -1,4 +1,4 @@
-/* Home page: sidebar nav, live board rack, routed build pipeline, CLI.
+/* Home page: sidebar nav, board lifecycle, routed build pipeline, CLI.
    Loaded after style.css, only by index.html; everything is scoped to
    body.home so the research page keeps its own layout. */
 
@@ -48,106 +48,94 @@ body.home .hero .bio + .bio { margin-top: 12px; }
 body.home .hero-ctas { margin-top: 30px; }
 body.home .hero .btn.ghost { background: rgba(254, 253, 251, 0.85); }
 
-/* ---------------- boards: the rack, drawn live from /fpga ---------------- */
+/* ---------------- boards: one board through its lifecycle ---------------- */
 
-.rack {
+.lifecycle {
   margin-top: 36px;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 40px;
+  align-items: center;
   background: var(--die);
   border: 1px solid var(--rack-edge);
   border-radius: 14px;
-  padding: 26px 26px 20px;
+  padding: 32px;
   color: var(--code-ink);
 }
-.rack-summary {
-  font-size: 1.02rem;
-  font-weight: 600;
-  color: #eef2f8;
-}
-.rack-summary .muted { color: var(--code-dim); font-weight: 400; }
-.rack-grid {
-  list-style: none;
-  margin-top: 20px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
-  gap: 14px;
-}
-.rack-grid:empty { display: none; }
-
-/* a board: a package with pins on four sides and a status LED */
-.board {
+.board-figure {
   position: relative;
-  padding: 14px 12px 12px;
+  aspect-ratio: 1;
   border: 1px solid var(--rack-edge);
-  border-radius: 10px;
+  border-radius: 12px;
   background: #0a0e16;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  display: grid;
+  place-items: center;
+}
+.board-figure .led { position: absolute; top: 14px; right: 14px; width: 10px; height: 10px; }
+.board-label {
+  position: absolute;
+  bottom: 14px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--code-dim);
 }
 .chip {
   position: relative;
-  align-self: center;
-  width: 58px;
-  height: 58px;
-  border-radius: 5px;
+  width: 92px;
+  height: 92px;
+  border-radius: 6px;
   background: #121926;
   border: 1px solid #263044;
-  /* pins: dashed borders drawn just outside the package */
-  outline: 3px dashed #2a3447;
-  outline-offset: 2px;
+  outline: 4px dashed #2a3447;   /* pins */
+  outline-offset: 3px;
   transition: background 0.4s ease, border-color 0.4s ease;
 }
-.chip::after {           /* pin-1 marker */
+.chip::after {                    /* pin-1 marker */
   content: "";
   position: absolute;
-  top: 6px;
-  left: 6px;
-  width: 5px;
-  height: 5px;
+  top: 8px;
+  left: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: #33405a;
 }
-.board-id {
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  color: #aebacc;
-}
-.board-state { font-size: 0.82rem; color: var(--code-dim); }
-.board .led { position: absolute; top: 10px; right: 10px; }
-
-.board.is-busy .chip { background: #16324c; border-color: var(--led-busy); }
-.board.is-busy .board-state { color: #8fc0e6; }
-.board.is-free .board-state { color: #7fd6c6; }
-.board.is-flashing .chip { border-color: var(--led-flash); }
-.board.is-flashing .board-state { color: #f4a46c; }
-.board.is-off { opacity: 0.45; }
+.board-figure.is-busy .chip { background: #16324c; border-color: var(--led-busy); }
+.board-figure.is-flashing .chip { border-color: var(--led-flash); }
 
 .led {
   display: inline-block;
-  width: 8px;
-  height: 8px;
   border-radius: 50%;
   background: #3a4458;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
-.led.is-free { background: var(--led-free); box-shadow: 0 0 8px rgba(31, 158, 137, 0.8); }
-.led.is-busy { background: var(--led-busy); box-shadow: 0 0 8px rgba(47, 127, 184, 0.8); }
-.led.is-flashing { background: var(--led-flash); box-shadow: 0 0 8px rgba(232, 104, 31, 0.85); }
-.board.is-flashing .led { animation: led-flash 0.9s steps(2) infinite; }
+.is-free .led { background: var(--led-free); box-shadow: 0 0 10px rgba(31, 158, 137, 0.8); }
+.is-busy .led { background: var(--led-busy); box-shadow: 0 0 10px rgba(47, 127, 184, 0.8); }
+.is-flashing .led {
+  background: var(--led-flash);
+  box-shadow: 0 0 10px rgba(232, 104, 31, 0.85);
+  animation: led-flash 0.9s steps(2) infinite;
+}
 @keyframes led-flash { 50% { opacity: 0.25; } }
 
-.rack-foot {
-  margin-top: 18px;
-  padding-top: 14px;
-  border-top: 1px solid var(--rack-edge);
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 10px 24px;
-  font-size: 0.82rem;
+.life-steps { list-style: none; display: grid; gap: 4px; counter-reset: life; }
+.life-steps li {
+  counter-increment: life;
+  display: grid;
+  grid-template-columns: 9.5em 1fr;
+  gap: 4px 16px;
+  padding: 9px 14px;
+  border-left: 2px solid var(--rack-edge);
   color: var(--code-dim);
+  transition: color 0.3s ease, border-color 0.3s ease;
 }
-.rack-legend { list-style: none; display: flex; flex-wrap: wrap; gap: 6px 18px; }
-.rack-legend li { display: inline-flex; align-items: center; gap: 7px; }
+.life-steps li b { color: #aebacc; font-weight: 600; }
+.life-steps li b::before { content: counter(life) ". "; color: var(--code-dim); font-weight: 400; }
+.life-steps li.current { border-left-color: var(--accent); color: var(--code-ink); }
+.life-steps li.current b { color: #fff; }
 
 /* ---------------- build: a routed wire, one via per stage ---------------- */
 
@@ -219,7 +207,7 @@ body.home .hero .btn.ghost { background: rgba(254, 253, 251, 0.85); }
 /* ---------------- cli ---------------- */
 
 body.home #cli .terminal { margin-top: 36px; }
-body.home #cli .terminal pre { min-height: 236px; }
+body.home #cli .terminal pre { min-height: 172px; }
 .term-head { color: #eef2f8; font-weight: 600; }
 .cli-duo {
   margin-top: 28px;
@@ -308,7 +296,6 @@ body.home button:focus-visible {
   }
   body.home .nav-account { gap: 12px; }
   body.home .nav-links .nav-cta { align-self: flex-start; padding: 8px 16px; }
-  body.home .nav-status { margin-top: auto; }
 
   body.home main,
   body.home .footer { margin-left: var(--side); }
@@ -319,22 +306,6 @@ body.home button:focus-visible {
   font-size: 0.8rem;
   color: var(--ink-3);
 }
-.nav-status {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.8rem;
-  color: var(--ink-2);
-}
-.nav-status[hidden] { display: none; }
-.status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--led-free);
-  box-shadow: 0 0 0 3px rgba(31, 158, 137, 0.16);
-}
-.nav-status.is-down .status-dot { background: var(--led-flash); box-shadow: 0 0 0 3px rgba(232, 104, 31, 0.16); }
 
 /* ---------------- phones and tablets: top bar + menu (style.css) ---------------- */
 
@@ -346,12 +317,12 @@ body.home button:focus-visible {
   body.home .nav-group { display: flex; flex-direction: column; gap: 2px; }
   body.home .nav-heading { padding: 10px 12px 2px; }
   body.home .nav-page { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 4px; }
-  body.home .nav-status { padding: 10px 12px 4px; }
   body.home .nav-links { max-height: calc(100dvh - 80px); overflow-y: auto; }
 
-  .rack { padding: 18px 16px 14px; }
-  .rack-grid { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 10px; }
-  .chip { width: 44px; height: 44px; }
+  .lifecycle { grid-template-columns: 1fr; gap: 24px; padding: 20px 16px; }
+  .board-figure { width: 160px; justify-self: center; }
+  .chip { width: 64px; height: 64px; }
+  .life-steps li { grid-template-columns: 1fr; padding: 8px 12px; }
 
   .pipeline-wire { display: none; }
   .pipeline-stages {
@@ -373,7 +344,7 @@ body.home button:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .board.is-flashing .led { animation: none; }
+  .is-flashing .led { animation: none; }
   .pipeline .wire-signal { stroke-dashoffset: 0; }
   .pipeline .via { background: var(--accent); border-color: var(--accent); }
 }
