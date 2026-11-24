@@ -1,4 +1,4 @@
-/* nav collapse, section reveals, live terminal, beta form */
+/* nav collapse, section reveals, copy buttons, beta form */
 (function () {
   const isHomeRoute = /(^\/$|\/index\.html$)/.test(window.location.pathname);
   const hasExplicitHash = window.location.hash.length > 0;
@@ -106,67 +106,7 @@
     });
   });
 
-  /* ---- terminal: replay of a real `mrg run` session ---- */
-  const term = document.getElementById("term-body");
-  if (term && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    const SPINNER = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
-    const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
-    let t = 0, frame = 0, phase = 0, typed = 0, timer = null;
-    const cmd = "mrg run examples/sat_solver/client_sdk.py";
-
-    function render() {
-      const lines = [];
-      lines.push(
-        `<span class="term-dim">$</span> ${esc(cmd.slice(0, typed))}` +
-        (phase === 0 ? '<span class="term-cursor"></span>' : "")
-      );
-      if (phase >= 1) lines.push(`<span class="term-dim">[mrg] picked idle fpga1</span>`);
-      if (phase >= 2) {
-        const mm = String(Math.floor(t / 60)).padStart(2, "0");
-        const ss = String(t % 60).padStart(2, "0");
-        lines.push(
-          `<span class="term-run">${SPINNER[frame % SPINNER.length]} running</span>` +
-          ` <span class="term-dim">·</span> sat_solver <span class="term-dim">·</span>` +
-          ` warming up the flip-flops… <span class="term-dim">${mm}:${ss}</span>`
-        );
-      }
-      if (phase >= 3) {
-        lines.push(`<span class="term-ok">✓ done</span> <span class="term-dim">·</span> read: 0x2a`);
-        lines.push(`<span class="term-dim">$</span> <span class="term-cursor"></span>`);
-      }
-      term.innerHTML = lines.join("\n");
-    }
-
-    function start() {
-      timer = setInterval(() => {
-        if (phase === 0) {
-          typed = Math.min(cmd.length, typed + 2);
-          if (typed === cmd.length) phase = 1;
-        } else if (phase === 1) {
-          phase = 2;
-        } else if (phase === 2) {
-          frame++;
-          if (frame % 10 === 0) t++;
-          if (t >= 9) phase = 3;
-        } else {
-          // hold the finished state, then replay
-          if (++frame % 90 === 0) { t = 0; frame = 0; typed = 0; phase = 0; }
-        }
-        render();
-      }, 80);
-    }
-
-    new IntersectionObserver((entries, obs) => {
-      if (entries[0].isIntersecting) { obs.disconnect(); start(); }
-    }, { threshold: 0.4 }).observe(term);
-    render();
-  } else if (term) {
-    term.innerHTML =
-      '<span class="term-dim">$</span> mrg run examples/sat_solver/client_sdk.py\n' +
-      '<span class="term-dim">[mrg] picked idle fpga1</span>\n' +
-      '<span class="term-run">⠋ running</span> <span class="term-dim">·</span> sat_solver ' +
-      '<span class="term-dim">·</span> warming up the flip-flops… <span class="term-dim">05:52</span>';
-  }
+  /* the home page's terminal replay lives in js/home.js */
 
   /* ---- beta form ---- */
   const form = document.getElementById("beta-form");

@@ -30,7 +30,8 @@
       </button>
       <nav class="nav-links" id="site-nav">
         <a href="https://docs.manhattanreasoning.com">Docs</a>
-        <a href="research.html">Research</a>
+        <a href="research.html" aria-current="page">Research</a>
+        <a href="mailto:hello@manhattanreasoning.com">Contact</a>
         <a class="nav-signin" href="https://app.manhattanreasoning.com">Sign in</a>
         <a class="btn nav-cta" href="index.html#beta">Beta access</a>
       </nav>
@@ -58,7 +59,7 @@
 
         <div class="hero-abstract" id="abstract">
           <p>Domain-specific architectures are increasingly built to accelerate individual workloads on FPGAs such as deep learning, genomics, and boolean satisfiability. Yet the researchers who hold the domain problems are largely absent from the hardware work: across three decades of SAT solving, hardware publications roughly doubled while the share co-authored with the software SAT community fell from 37% to 10%. We argue this reflects not only the difficulty of implementing solvers in hardware, but the cost of access to boards, licenses, and hardware expertise.</p>
-          <p>We present a serverless cloud platform that removes those costs, letting users program remote FPGAs from Python on an open toolchain with no license seats to constrain agentic iteration. It runs today on seven Lattice ECP5 boards and opens to public beta in December 2026. In a pilot, frontier coding agents optimized a SAT solver on real silicon: each improved on the baseline, none reached algorithmic techniques beyond its DPLL core. We propose a SAT competition with an AI-generated track for hardware-accelerated solvers, so that domain-experts can prototype accelerators without first becoming hardware engineers.</p>
+          <p>We present a serverless cloud platform that removes those costs, letting users program remote FPGAs from Python on an open toolchain with no license seats to constrain agentic iteration. It runs today on a rack of Lattice ECP5 boards and opens to public beta in December 2026. In a pilot, frontier coding agents optimized a SAT solver on real silicon: each improved on the baseline, none reached algorithmic techniques beyond its DPLL core. We propose a SAT competition with an AI-generated track for hardware-accelerated solvers, so that domain-experts can prototype accelerators without first becoming hardware engineers.</p>
         </div>
       </div>
     </header>
@@ -219,7 +220,7 @@ app = mrg.cloud.<span class="tok-fn">App</span>(
                    alt="A sequence diagram in three bands. The client column shows the host program entering a context, writing and reading registers, and exiting. The control plane band shows the build pipeline claiming a build slot, synthesising and placing-and-routing the design, flashing an idle FPGA, then carrying each Wishbone read and write, and finally flashing a clear image on cleanup. The server column shows the FPGA fabric holding the user design." />
               <span class="zoom-hint">click to enlarge</span>
             </div>
-            <figcaption><span class="fignum">Figure 5.</span> One session of the program in <a href="#fig-4">Figure&nbsp;4</a>, seen from behind the SDK. The Client column is that program in order. &#9312;&nbsp;Entering the context deploys the design: the pipeline claims one of seven build slots, synthesises and places-and-routes it on a single Fargate task, and flashes the result onto whichever FPGA is idle. &#9313;&nbsp;Each <code>write</code> and <code>read</code> then crosses the control plane as one Wishbone transaction &mdash; an address and a data word out, an acknowledgement or a data word back &mdash; reaching the user&rsquo;s 2&thinsp;KB region and nothing else on the SoC. &#9314;&nbsp;Leaving the context flashes a clear image, which is what wipes the design before the board is handed to the next session. Two elisions for legibility: the figure shows one write and one read where the program loops four times, and the design is built and flashed on first use rather than at <code>__enter__</code> itself.</figcaption>
+            <figcaption><span class="fignum">Figure 5.</span> One session of the program in <a href="#fig-4">Figure&nbsp;4</a>, seen from behind the SDK. The Client column is that program in order. &#9312;&nbsp;Entering the context deploys the design: the pipeline claims a build slot, synthesises and places-and-routes it on a single Fargate task, and flashes the result onto whichever FPGA is idle. &#9313;&nbsp;Each <code>write</code> and <code>read</code> then crosses the control plane as one Wishbone transaction &mdash; an address and a data word out, an acknowledgement or a data word back &mdash; reaching the user&rsquo;s 2&thinsp;KB region and nothing else on the SoC. &#9314;&nbsp;Leaving the context flashes a clear image, which is what wipes the design before the board is handed to the next session. Two elisions for legibility: the figure shows one write and one read where the program loops four times, and the design is built and flashed on first use rather than at <code>__enter__</code> itself.</figcaption>
           </figure>
 
           <h4 id="platform-beta">3.1.2&emsp;Platform Beta and Public Release</h4>
