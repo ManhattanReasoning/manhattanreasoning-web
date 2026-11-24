@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Manhattan Reasoning — Intelligence doesn't stop at software.</title>
-  <meta name="description" content="Cloud silicon, open-source toolchains, and training environments where AI learns to design computer chips that are both correct and optimal." />
+  <title>Manhattan Reasoning — Real FPGAs, one command away</title>
+  <meta name="description" content="A rack of Lattice ECP5 boards behind the open-source toolchain. Build, flash and run your design on real silicon with one command." />
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/home.css" />
 </head>
-<body>
+<body class="home">
 
-  <!-- ================= nav ================= -->
+  <!-- ================= nav: a sidebar on desktop, the top bar + menu on phones ================= -->
   <header class="nav">
     <div class="nav-inner">
       <a class="brand" href="#top" aria-label="Manhattan Reasoning">
-        <!-- live text logo; the top line collapses on scroll (CSS), leaving the blue line -->
         <span class="logo" aria-hidden="true">
           <span class="logo-l1">Manhattan <span class="op">&rarr;</span> Reasoning,</span>
           <span class="logo-l2">Manhattan <span class="op">&#8866;</span> Reasoning</span>
@@ -23,54 +23,154 @@
       <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation">
         <span></span><span></span><span></span>
       </button>
-      <nav class="nav-links" id="site-nav">
-        <a href="https://docs.manhattanreasoning.com">Docs</a>
-        <a href="research.html">Research</a>
-        <a class="nav-signin" href="https://app.manhattanreasoning.com">Sign in</a>
-        <a class="btn nav-cta" href="#beta">Beta access</a>
+      <nav class="nav-links" id="site-nav" aria-label="Site">
+        <div class="nav-group">
+          <a href="https://docs.manhattanreasoning.com">Docs</a>
+          <a href="research.html">Research</a>
+          <a href="mailto:hello@manhattanreasoning.com">Contact</a>
+        </div>
+        <div class="nav-group nav-page">
+          <p class="nav-heading" id="nav-page-heading">On this page</p>
+          <a href="#boards">Boards</a>
+          <a href="#build">Builds</a>
+          <a href="#cli">CLI</a>
+          <a href="#sandbox">Sandbox</a>
+        </div>
+        <div class="nav-group nav-account">
+          <a class="nav-signin" href="https://app.manhattanreasoning.com">Sign in</a>
+          <a class="btn nav-cta" href="#beta">Beta access</a>
+        </div>
+        <p class="nav-status" data-live-status hidden>
+          <span class="status-dot" aria-hidden="true"></span>
+          <span data-live-status-text></span>
+        </p>
       </nav>
     </div>
   </header>
 
-  <!-- ================= hero ================= -->
   <main id="top">
+
+    <!-- ================= hero ================= -->
     <section class="hero">
-      <!-- living routing field: the real routed cloud_fpga_soc, bleeding into the page -->
+      <!-- living routing field: the real routed cloud_fpga_soc -->
       <canvas id="routing-canvas" class="hero-routing-canvas" data-routing-field aria-hidden="true"></canvas>
       <div class="container">
         <div class="hero-copy">
-          <h1>Intelligence doesn&rsquo;t stop at&nbsp;software.</h1>
+          <h1>Real FPGAs, one command&nbsp;away.</h1>
           <p class="bio">
-            We're a small team of computer scientists bringing hardware reasoning
-            to everyone. Led by Prof. Mark Santolucito, our team comes from a
-            Barnard/Columbia research lab. Our platform provides cloud silicon,
-            open-source toolchains, and training environments where AI learns to
-            design computer chips that are both correct and optimal.
+            Manhattan Reasoning exists so that anyone, or any AI agent, can try
+            a hardware idea on real silicon without owning a lab.
+          </p>
+          <p class="bio">
+            We run a rack of Lattice ECP5 boards behind the open-source
+            toolchain, with a Python SDK, the <code>mrg</code> command line, and
+            sandboxes where agents learn to design chips that are both correct
+            and fast.
           </p>
           <div class="hero-ctas">
-            <a class="read-more" href="#cloud">Read more&hellip;</a>
+            <a class="btn" href="#beta">Request beta access</a>
+            <a class="btn ghost" href="https://docs.manhattanreasoning.com">Read the docs</a>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ================= cloud ================= -->
-    <section class="section" id="cloud">
+    <!-- ================= boards ================= -->
+    <section class="section" id="boards" aria-labelledby="boards-h">
       <div class="container">
-        <div class="reveal">
-          <p class="kicker">01 · Cloud</p>
-          <h2>Silicon Reasoning on the Cloud</h2>
-          <p class="lede">
-            Prototype digital circuits on physical silicon in a few lines of code
-            with our cloud FPGA cluster, Python SDK, and CLI.
-          </p>
-          <p class="built-on">Built on the open hardware stack &mdash;
-            <span>Yosys</span>, <span>nextpnr</span>, <span>LiteX</span>,
-            and the <span>Lattice ECP5-85F</span>.</p>
+        <h2 id="boards-h">Boards you can reach from anywhere</h2>
+        <p class="lede">
+          Each board is a Lattice ECP5-85F running our base SoC. When you run a
+          design, it builds in the cloud, takes a free board, and hands it back
+          when you are done. This is the rack right now.
+        </p>
+
+        <div class="rack" data-rack>
+          <p class="rack-summary" data-rack-summary aria-live="polite">Checking the boards&hellip;</p>
+          <ol class="rack-grid" data-rack-grid aria-label="Boards"></ol>
+          <div class="rack-foot">
+            <ul class="rack-legend" aria-label="Board states">
+              <li><span class="led is-free" aria-hidden="true"></span>Free</li>
+              <li><span class="led is-busy" aria-hidden="true"></span>In use</li>
+              <li><span class="led is-flashing" aria-hidden="true"></span>Flashing</li>
+              <li><span class="led is-off" aria-hidden="true"></span>Unavailable</li>
+            </ul>
+            <p class="rack-time" data-rack-time></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= build ================= -->
+    <section class="section" id="build" aria-labelledby="build-h">
+      <div class="container">
+        <h2 id="build-h">From design.py to a running board</h2>
+        <p class="lede">
+          One <code>mrg run</code> walks your design through the open hardware
+          stack. Builds run in the cloud, so your laptop only waits.
+        </p>
+
+        <div class="pipeline" data-pipeline>
+          <svg class="pipeline-wire" viewBox="0 0 1000 56" preserveAspectRatio="none" aria-hidden="true">
+            <path class="wire-base" d="M100 14 H200 V42 H400 V14 H600 V42 H800 V14 H900" vector-effect="non-scaling-stroke" />
+            <path class="wire-signal" d="M100 14 H200 V42 H400 V14 H600 V42 H800 V14 H900" vector-effect="non-scaling-stroke" pathLength="1" />
+          </svg>
+          <ol class="pipeline-stages">
+            <li class="stage track-0">
+              <span class="via" aria-hidden="true"></span>
+              <span class="stage-name">Synthesis</span>
+              <span class="stage-tool">Yosys turns your Amaranth or Verilog into a netlist.</span>
+            </li>
+            <li class="stage track-1">
+              <span class="via" aria-hidden="true"></span>
+              <span class="stage-name">Place &amp; route</span>
+              <span class="stage-tool">nextpnr fits it onto the ECP5 and checks timing.</span>
+            </li>
+            <li class="stage track-0">
+              <span class="via" aria-hidden="true"></span>
+              <span class="stage-name">Bitstream</span>
+              <span class="stage-tool">ecppack packs the result for the chip.</span>
+            </li>
+            <li class="stage track-1">
+              <span class="via" aria-hidden="true"></span>
+              <span class="stage-name">Flash</span>
+              <span class="stage-tool">The bitstream goes onto a free board.</span>
+            </li>
+            <li class="stage track-0">
+              <span class="via" aria-hidden="true"></span>
+              <span class="stage-name">Run</span>
+              <span class="stage-tool">Your Python reads and writes the design&rsquo;s registers.</span>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= cli ================= -->
+    <section class="section" id="cli" aria-labelledby="cli-h">
+      <div class="container">
+        <h2 id="cli-h">A command line you can script</h2>
+        <p class="lede">
+          Install the SDK, sign in with GitHub, and run. Every step is a plain
+          command, so an agent can drive it as easily as you can.
+        </p>
+
+        <div class="code-card terminal">
+          <div class="code-head"><span class="fname">terminal</span></div>
+          <pre id="term-body" aria-label="Example mrg session"><span class="term-dim">$</span> <span class="term-cursor"></span></pre>
         </div>
 
-        <div class="duo">
-          <div class="code-card reveal">
+        <div class="cli-duo">
+          <dl class="commands">
+            <div><dt><code>mrg login</code></dt><dd>Sign in with GitHub and store an API key.</dd></div>
+            <div><dt><code>mrg run design.py</code></dt><dd>Build, flash a free board, and run your entrypoint.</dd></div>
+            <div><dt><code>mrg status</code></dt><dd>See which boards are free.</dd></div>
+            <div><dt><code>mrg jobs</code>, <code>mrg logs</code></dt><dd>Your recent builds and their logs.</dd></div>
+            <div><dt><code>mrg cancel</code></dt><dd>Stop a build.</dd></div>
+            <div><dt><code>mrg synth</code>, <code>mrg pnr</code></dt><dd>Resource and timing reports on your own machine, no board needed.</dd></div>
+          </dl>
+
+          <div class="code-card">
             <div class="code-head"><span class="fname">client_sdk.py</span><button class="copy-btn" type="button">Copy</button></div>
             <pre><code><span class="tok-kw">import</span> manhattan_reasoning_gym <span class="tok-kw">as</span> mrg
 
@@ -90,20 +190,27 @@ app = mrg.cloud.App(
         app.write(Regs.DATA_IN, <span class="tok-num">0xDEADBEEF</span>)
         <span class="tok-fn">print</span>(<span class="tok-fn">hex</span>(app.read(Regs.DATA_OUT)))</code></pre>
           </div>
-
-          <div class="code-card terminal reveal">
-            <div class="code-head"><span class="fname">terminal</span></div>
-            <pre id="term-body"><span class="term-dim">$</span> <span class="term-cursor"></span></pre>
-          </div>
         </div>
       </div>
     </section>
 
     <!-- ================= sandbox ================= -->
-    <section class="section" id="sandbox">
-      <!-- mirrored split: code left, text + bullets right -->
-      <div class="container">
-        <div class="code-card reveal">
+    <section class="section" id="sandbox" aria-labelledby="sandbox-h">
+      <div class="container split">
+        <div>
+          <h2 id="sandbox-h">Sandboxes for hardware agents</h2>
+          <p class="lede">
+            Isolated sandboxes to design, experiment and verify, then check
+            the result on real silicon. We are building an RLVR environment
+            with formal-methods researchers, with benchmarks to follow.
+          </p>
+          <ul class="feature-list">
+            <li>Runs locally, with no network and no keys</li>
+            <li>Reward signals you can verify</li>
+            <li>The same boards as everything else on this page</li>
+          </ul>
+        </div>
+        <div class="code-card">
           <div class="code-head"><span class="fname">sandbox.py</span><button class="copy-btn" type="button">Copy</button></div>
           <pre><code><span class="tok-kw">import</span> manhattan_reasoning_gym <span class="tok-kw">as</span> mrg
 
@@ -112,63 +219,59 @@ sandbox = mrg.Sandbox(
 )
 result = sandbox.run(<span class="tok-str">"agent.py"</span>)  <span class="tok-cm"># no network, no keys</span></code></pre>
         </div>
+      </div>
+    </section>
 
-        <div class="reveal">
-          <p class="kicker">02 · Sandbox</p>
-          <h2>Train and benchmark hardware agents at the transistor level.</h2>
-          <p class="lede">
-            Isolated sandboxes that make it easy to design, experiment, and
-            verify on real silicon in a matter of minutes. We&rsquo;re currently
-            working on an RLVR environment designed by formal methods experts.
-          </p>
-          <ul class="feature-list">
-            <li>Local Sandboxing</li>
-            <li>Verifiable Reward Signals</li>
-            <li>Real Silicon in the Cloud</li>
-            <li>Benchmarks in the Works</li>
-          </ul>
-        </div>
+    <!-- ================= research ================= -->
+    <section class="section" id="research" aria-labelledby="research-h">
+      <div class="container">
+        <h2 id="research-h">Why we are building this</h2>
+        <p class="lede">
+          The people who hold domain problems are largely absent from hardware
+          work. Our research vision lays out how cloud FPGAs, an open toolchain
+          and a competition for hardware SAT solvers can lower that barrier.
+          We are a small team from a Barnard and Columbia research lab, led by
+          Prof. Mark Santolucito.
+        </p>
+        <p class="research-links">
+          <a href="research.html">Read the research vision</a>
+          <a href="assets/manhattan-reasoning-research-vision.pdf">Download the PDF</a>
+        </p>
       </div>
     </section>
 
     <!-- ================= beta ================= -->
-    <section class="section" id="beta">
+    <section class="section" id="beta" aria-labelledby="beta-h">
       <canvas class="beta-routing-canvas" data-routing-field aria-hidden="true"></canvas>
       <div class="container beta-wrap">
-        <div class="reveal">
-          <p class="kicker">03 · Beta Access</p>
-          <h2>What Will You Build?</h2>
-          <p class="lede">Dive into real silicon with two commands.</p>
-        </div>
+        <h2 id="beta-h">Request beta access</h2>
+        <p class="lede">We are opening the boards to a small group first. Install the SDK, then tell us what you want to run.</p>
 
-        <div class="code-card beta-install reveal">
+        <div class="code-card beta-install">
           <div class="code-head"><span class="fname">install</span><button class="copy-btn" type="button">Copy</button></div>
           <pre><code><span class="term-dim">$</span> pip install manhattan-reasoning-gym
 <span class="term-dim">$</span> docker pull ghcr.io/manhattanreasoning/mrg-sandbox:latest</code></pre>
         </div>
 
-        <div class="beta-form-card reveal">
-          <h3>Request private beta access</h3>
-          <p>We&rsquo;re looking for users to test our infrastructure — tell us
-            a little about what you want to run on it.</p>
-          <!-- Create a form at https://formspree.io and replace YOUR_FORM_ID.
-               Until then, submissions fall back to a pre-filled email. -->
+        <div class="beta-form-card">
+          <h3>Tell us about your project</h3>
+          <p>Your GitHub username is how we give you access to the boards.</p>
           <form id="beta-form" action="https://api.manhattanreasoning.com/api/beta/apply" method="POST">
             <div class="form-grid">
               <div class="field">
-                <label for="f-name">Full Name</label>
+                <label for="f-name">Full name</label>
                 <input id="f-name" name="full_name" type="text" autocomplete="name" />
               </div>
               <div class="field">
-                <label for="f-github">GitHub Handle <span style="font-weight:600; color:var(--accent)">*</span></label>
+                <label for="f-github">GitHub username <span class="req" aria-hidden="true">*</span></label>
                 <input id="f-github" name="github_username" type="text" required placeholder="@username" autocomplete="username" />
               </div>
               <div class="field">
-                <label for="f-email">Email <span style="font-weight:600; color:var(--accent)">*</span></label>
+                <label for="f-email">Email <span class="req" aria-hidden="true">*</span></label>
                 <input id="f-email" name="email" type="email" required autocomplete="email" />
               </div>
               <div class="field">
-                <label for="f-aff">Affiliation <span style="font-weight:400">(optional)</span></label>
+                <label for="f-aff">Affiliation <span class="opt">(optional)</span></label>
                 <input id="f-aff" name="affiliation" type="text" placeholder="university, company, independent…" />
               </div>
               <div class="field full">
@@ -178,7 +281,7 @@ result = sandbox.run(<span class="tok-str">"agent.py"</span>)  <span class="tok-
               </div>
             </div>
             <div class="form-foot">
-              <button class="btn" type="submit">Request Access</button>
+              <button class="btn" type="submit">Request access</button>
               <span class="form-status" role="status"></span>
               <span class="form-note">or email
                 <a href="mailto:hello@manhattanreasoning.com">hello@manhattanreasoning.com</a></span>
@@ -196,7 +299,7 @@ result = sandbox.run(<span class="tok-str">"agent.py"</span>)  <span class="tok-
         <img src="assets/favicon.svg" alt="Manhattan Reasoning turnstile mark" />
         <span>© 2026 Manhattan Reasoning</span>
       </div>
-      <nav class="footer-links">
+      <nav class="footer-links" aria-label="Footer">
         <a href="https://github.com/ManhattanReasoning">GitHub</a>
         <a href="https://docs.manhattanreasoning.com">Docs</a>
         <a href="mailto:hello@manhattanreasoning.com">hello@manhattanreasoning.com</a>
@@ -206,5 +309,6 @@ result = sandbox.run(<span class="tok-str">"agent.py"</span>)  <span class="tok-
 
   <script src="js/routing-viz.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/home.js"></script>
 </body>
 </html>
