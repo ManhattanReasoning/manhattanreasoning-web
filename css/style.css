@@ -466,6 +466,30 @@ a:hover { text-decoration: underline; }
 .form-status.ok { color: #1a7f4e; }
 .form-status.err { color: #c0392b; }
 
+/* ---------------- notice pages ---------------- */
+
+/* The membership-*.html pages: where Stripe sends the browser after checkout
+   or the billing portal. One centered block built from the beta section's
+   pieces; these rules only clear the fixed nav, keep the footer low on a
+   short page, and give the page an h1 that looks like a section h2. */
+.notice {
+  padding-top: 64px; min-height: 78vh;
+  display: flex; align-items: center;
+}
+.notice .section { width: 100%; }
+.notice h1 {
+  margin: 10px auto 0;
+  font-size: clamp(1.7rem, 3vw, 2.35rem);
+  letter-spacing: -0.015em; line-height: 1.15;
+  font-weight: 700;
+  max-width: 24ch;
+}
+.notice-foot { margin-top: 26px; font-size: 0.93rem; color: var(--ink-2); }
+.notice-foot code {
+  font-family: var(--mono); font-size: 0.92em; color: var(--ink);
+  white-space: nowrap;
+}
+
 /* ---------------- footer ---------------- */
 
 .footer { border-top: 1px solid var(--line); padding: 44px 0 56px; }
